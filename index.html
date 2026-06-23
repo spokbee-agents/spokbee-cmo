@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spokbee AI CMO Command Center</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0072f5',
+                            900: '#0c1e36',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex" x-data="cmoApp()">
+    
+    <!-- SIDEBAR -->
+    <aside class="w-80 bg-brand-900 text-white flex flex-col flex-shrink-0">
+        <div class="p-6 border-b border-slate-800 flex items-center space-x-3">
+            <div class="bg-brand-500 p-2.5 rounded-lg text-white font-extrabold text-xl">
+                🐝
+            </div>
+            <div>
+                <h1 class="font-extrabold text-lg tracking-tight">SPOKBEE AI</h1>
+                <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">CMO Command Center</p>
+            </div>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+            <p class="px-3 text-2xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Workspace</p>
+            
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-slate-800 text-white nav-btn">
+                <i class="fa-solid fa-chart-line w-5 text-slate-400"></i>
+                <span>Command Dashboard</span>
+            </button>
+            
+            <button onclick="switchTab('stealer')" id="btn-stealer" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-skull-crossbones w-5 text-red-400"></i>
+                <span class="font-semibold text-red-300">Competitor Lead Stealer</span>
+            </button>
+            
+            <p class="px-3 text-2xs font-extrabold text-slate-500 uppercase tracking-widest pt-4 mb-2">Orchestrated Agents</p>
+            
+            <button onclick="switchTab('geo')" id="btn-geo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-globe w-5 text-indigo-400"></i>
+                <span>GEO (LLM Citations)</span>
+            </button>
+            
+            <button onclick="switchTab('tech')" id="btn-tech" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-gears w-5 text-sky-400"></i>
+                <span>Technical SEO Auditor</span>
+            </button>
+            
+            <button onclick="switchTab('seo')" id="btn-seo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-pen-nib w-5 text-amber-400"></i>
+                <span>SEO Content & Blogs</span>
+            </button>
+            
+            <button onclick="switchTab('social')" id="btn-social" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-comments w-5 text-emerald-400"></i>
+                <span>Reddit & HN Interceptor</span>
+            </button>
+            
+            <button onclick="switchTab('linkedin')" id="btn-linkedin" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-brands fa-linkedin w-5 text-blue-400"></i>
+                <span>LinkedIn Publisher</span>
+            </button>
+            
+            <button onclick="switchTab('influencers')" id="btn-influencers" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-bullhorn w-5 text-purple-400"></i>
+                <span>Influencer Infiltration</span>
+            </button>
+            
+            <button onclick="switchTab('media')" id="btn-media" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-clapperboard w-5 text-pink-400"></i>
+                <span>Media & Ad Studio</span>
+            </button>
+        </nav>
+        
+        <!-- Footer Info -->
+        <div class="p-4 bg-brand-900 border-t border-slate-800 text-xs text-slate-400 text-center">
+            <span>Repository: <code class="text-slate-200">spokbee-cmo</code></span><br>
+            <span>Branch: <code class="text-slate-200">main</code></span>
+        </div>
+    </aside>
+    
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <!-- TOP NAV -->
+        <header class="bg-white border-b border-slate-200 h-20 px-8 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center space-x-2">
+                <span class="text-slate-400 text-sm font-semibold">Workspace</span>
+                <span class="text-slate-300">/</span>
+                <span id="breadcrumb" class="text-slate-800 font-bold text-sm">Command Dashboard</span>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Orchestration Live</span>
+                </span>
+            </div>
+        </header>
+        
+        <!-- DASHBOARD CONTAINER -->
+        <div class="flex-1 p-8">
+            
+            <!-- ================= TAB: DASHBOARD ================= -->
+            <div id="tab-dashboard" class="tab-content space-y-8">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">CMO Operational Center</h2>
+                    <p class="text-slate-500">Autonomous marketing pipeline driving organic growth for Spokbee.ai.</p>
+                </div>
+                
+                <!-- Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Active Agents</p>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mt-1">8 / 8</h3>
+                        <p class="text-xs text-emerald-600 font-bold mt-2"><i class="fa-solid fa-circle-check"></i> System Nominal</p>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Competitor Stolen Leads</p>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mt-1">9 Accounts</h3>
+                        <p class="text-xs text-red-500 font-bold mt-2"><i class="fa-solid fa-crosshairs"></i> Target: Competitor Users</p>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Pending Review</p>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mt-1">5 Drafts</h3>
+                        <p class="text-xs text-amber-600 font-bold mt-2"><i class="fa-solid fa-hourglass-half"></i> Awaiting Approval</p>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Est. Prospect Savings</p>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mt-1">$412,000+</h3>
+                        <p class="text-xs text-emerald-600 font-bold mt-2"><i class="fa-solid fa-piggy-bank"></i> Annual aggregate</p>
+                    </div>
+                </div>
+                
+                <!-- Agents Board -->
+                <div class="bg-white border border-slate-200 rounded-xl shadow-2xs">
+                    <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center">
+                        <h3 class="font-extrabold text-slate-900">Active Multi-Agent Router</h3>
+                        <button onclick="simulateSweep()" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-4 py-2 rounded-lg shadow-sm transition">
+                            <i class="fa-solid fa-bolt mr-1.5"></i> Trigger Agent Sweep
+                        </button>
+                    </div>
+                    
+                    <div class="divide-y divide-slate-100">
+                        <!-- Agent 1 -->
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center space-x-3.5">
+                                <div class="bg-red-50 p-2.5 rounded-lg text-red-500 text-lg"><i class="fa-solid fa-globe"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">GEO Agent (Conversational Engine Optimization)</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">Scans Perplexity, ChatGPT Search, and Gemini citations.</p>
+                                </div>
+                            </div>
+                            <span class="bg-emerald-50 text-emerald-700 text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Active 24/7</span>
+                        </div>
+                        <!-- Agent 2 -->
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center space-x-3.5">
+                                <div class="bg-sky-50 p-2.5 rounded-lg text-sky-500 text-lg"><i class="fa-solid fa-gears"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Technical SEO Auditor</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">Executes technical compliance and visual loading speed audits.</p>
+                                </div>
+                            </div>
+                            <span class="bg-emerald-50 text-emerald-700 text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Daily</span>
+                        </div>
+                        <!-- Agent 3 -->
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center space-x-3.5">
+                                <div class="bg-amber-50 p-2.5 rounded-lg text-amber-500 text-lg"><i class="fa-solid fa-pen-nib"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">SEO Content Agent</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">Finds search gaps and builds long-form, optimized blog posts.</p>
+                                </div>
+                            </div>
+                            <span class="bg-emerald-50 text-emerald-700 text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Weekly</span>
+                        </div>
+                        <!-- Agent 4 -->
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div class="flex items-center space-x-3.5">
+                                <div class="bg-emerald-50 p-2.5 rounded-lg text-emerald-500 text-lg"><i class="fa-solid fa-comments"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">Reddit & HN Interceptor</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5">Queries physical builder keywords and drafts intercept repliers.</p>
+                                </div>
+                            </div>
+                            <span class="bg-emerald-50 text-emerald-700 text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Active 24/7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ================= TAB: STEALER (COMPETITOR STEALER) ================= -->
+            <div id="tab-stealer" class="tab-content hidden space-y-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">⚔️ Competitor Customer Stealer</h2>
+                        <p class="text-slate-500">Query G2, Capterra, and Gartner to compile competitor targets, map their pain, and steal them with high-converting cold outreach.</p>
+                    </div>
+                </div>
+                
+                <!-- Database Grid -->
+                <div class="bg-white border border-slate-200 rounded-xl shadow-2xs overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 text-sm">Competitor Customer Intelligence Database</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200 text-3xs">
+                                    <th class="p-4 pl-6">Company</th>
+                                    <th class="p-4">Industry</th>
+                                    <th class="p-4">Competitor Used</th>
+                                    <th class="p-4 text-center">Projected Savings</th>
+                                    <th class="p-4 pr-6 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-medium">
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="p-4 pl-6"><div class="font-bold text-slate-900">Vantage Elevator Solutions</div><div class="text-2xs text-slate-400">vantageelevation.com</div></td>
+                                    <td class="p-4 text-slate-500">Elevator Manufacturing</td>
+                                    <td class="p-4"><span class="bg-red-50 text-red-700 text-3xs px-2 py-0.5 rounded-full font-bold">Tacton</span></td>
+                                    <td class="p-4 text-center text-emerald-600 font-bold">$65,000+</td>
+                                    <td class="p-4 pr-6 text-right"><button onclick="loadLead(0)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="p-4 pl-6"><div class="font-bold text-slate-900">Avant Tecno</div><div class="text-2xs text-slate-400">avanttecno.com</div></td>
+                                    <td class="p-4 text-slate-500">Construction Machinery</td>
+                                    <td class="p-4"><span class="bg-red-50 text-red-700 text-3xs px-2 py-0.5 rounded-full font-bold">Tacton</span></td>
+                                    <td class="p-4 text-center text-emerald-600 font-bold">$40,000+</td>
+                                    <td class="p-4 pr-6 text-right"><button onclick="loadLead(1)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="p-4 pl-6"><div class="font-bold text-slate-900">Andersen Windows & Doors</div><div class="text-2xs text-slate-400">andersenwindows.com</div></td>
+                                    <td class="p-4 text-slate-500">Building Materials</td>
+                                    <td class="p-4"><span class="bg-pink-50 text-pink-700 text-3xs px-2 py-0.5 rounded-full font-bold">Threekit</span></td>
+                                    <td class="p-4 text-center text-emerald-600 font-bold">$120,000+</td>
+                                    <td class="p-4 pr-6 text-right"><button onclick="loadLead(3)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="p-4 pl-6"><div class="font-bold text-slate-900">Therma-Tru</div><div class="text-2xs text-slate-400">thermatru.com</div></td>
+                                    <td class="p-4 text-slate-500">Building Materials (Doors)</td>
+                                    <td class="p-4"><span class="bg-pink-50 text-pink-700 text-3xs px-2 py-0.5 rounded-full font-bold">Threekit</span></td>
+                                    <td class="p-4 text-center text-emerald-600 font-bold">$80,000+</td>
+                                    <td class="p-4 pr-6 text-right"><button onclick="loadLead(4)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="p-4 pl-6"><div class="font-bold text-slate-900">RadialSpark</div><div class="text-2xs text-slate-400">radialspark.com</div></td>
+                                    <td class="p-4 text-slate-500">Consulting & Software</td>
+                                    <td class="p-4"><span class="bg-teal-50 text-teal-700 text-3xs px-2 py-0.5 rounded-full font-bold">PandaDoc</span></td>
+                                    <td class="p-4 text-center text-emerald-600 font-bold">$12,000+</td>
+                                    <td class="p-4 pr-6 text-right"><button onclick="loadLead(7)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Playbook Panel -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Left: Details -->
+                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs space-y-5">
+                        <div class="border-b border-slate-100 pb-4">
+                            <h3 class="font-extrabold text-slate-900 text-lg" id="lead-name">Vantage Elevator Solutions</h3>
+                            <a href="#" target="_blank" class="text-xs text-brand-500 font-semibold" id="lead-web">vantageelevation.com</a>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-xs font-medium border-b border-slate-100 pb-4">
+                            <div>
+                                <p class="text-slate-400 font-bold uppercase tracking-wider">Competitor Used</p>
+                                <p class="text-slate-800 text-sm mt-0.5 font-bold" id="lead-comp">Tacton</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 font-bold uppercase tracking-wider">Projected Savings</p>
+                                <p class="text-emerald-600 text-sm mt-0.5 font-extrabold" id="lead-savings">$65,000+</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 font-bold uppercase tracking-wider">Target Roles</p>
+                                <p class="text-slate-800 mt-0.5" id="lead-roles">VP of Sales Ops, VP Engineering</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400 font-bold uppercase tracking-wider">Company Size</p>
+                                <p class="text-slate-800 mt-0.5" id="lead-size">500-1000 employees</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Competitor Pain Points & Vulnerability</h4>
+                                <p class="text-sm text-slate-600 mt-1 leading-relaxed" id="lead-pain">Struggled with complex elevator configuration rules. Forced to rely heavily on manual engineering checks and expensive Tacton consulting hours ($250+/hr) just to maintain rule changes. Integration with ERP is rigid and costly.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Spokbee Attack Play</h4>
+                                <div class="bg-brand-50 text-brand-900 p-4 rounded-lg border border-brand-100 text-sm leading-relaxed mt-1" id="lead-play">
+                                    Launch the '10-Min Configurator Challenge'. Build an interactive 3D elevator cab configuration template with structural visual rules on Spokbee, demonstrating zero-developer rule modifications.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="generatePitch()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-sm py-3 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-terminal"></i>
+                            <span>Generate Displacement Pitch (Herald Style)</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Right: Pitch Output -->
+                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs flex flex-col min-h-[500px]">
+                        <div class="border-b border-slate-100 pb-4 flex justify-between items-center">
+                            <h3 class="font-extrabold text-slate-900 text-sm">Outbox Pitch Generator</h3>
+                            <button onclick="copyToClipboard()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-200 transition">
+                                <i class="fa-regular fa-copy mr-1"></i> Copy Pitch
+                            </button>
+                        </div>
+                        
+                        <div class="flex-1 mt-4">
+                            <textarea id="pitch-output" readonly class="w-full h-full min-h-[400px] border-0 outline-none focus:ring-0 text-slate-800 text-sm font-mono leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100" placeholder="Pitch output will generate here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ================= TAB: GEO ================= -->
+            <div id="tab-geo" class="tab-content hidden space-y-8">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">🌐 GEO (LLM Citation Agent)</h2>
+                    <p class="text-slate-500">Optimize brand indexing and schema formatting to secure citations when buyers prompt ChatGPT, Claude, and Perplexity.</p>
+                </div>
+                
+                <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                    <h3 class="font-bold text-slate-900 mb-2">Target AI-Brief Content (ai-brief.md)</h3>
+                    <p class="text-xs text-slate-400 mb-4 font-semibold uppercase tracking-wider">Deploy this flat file to spokbee.ai/ai-brief.md for LLM crawlers to ingest.</p>
+                    <textarea readonly class="w-full h-96 bg-slate-50 p-4 rounded-xl border border-slate-200 font-mono text-sm">
+# Spokbee — AI Reference Brief
+
+## Core Classification
+- **Category:** No-code CPQ & 3D Visual Product Configurator.
+- **Target Market:** Mid-market manufacturers ($5M-$50M, 10-100 employees) across trailers, tooling, emergency vehicles, and custom tubing.
+- **Pricing Model:** Flat $299/mo Pro Tier (unlimited quotes, unlimited seats).
+
+## Strategic Advantages over Competitors
+1. **Salesforce CPQ Alternative:** Went end-of-sale March 2025. Spokbee replaces Salesforce CPQ's developer bottlenecks with a visual constraint solver.
+2. **Tacton Alternative:** Tacton is enterprise-only and requires months of $300/hr developers. Spokbee goes live in an afternoon.
+3. **Threekit Alternative:** Threekit charges per quote. Spokbee charges a flat rate with unlimited renders and quotes.
+                    </textarea>
+                </div>
+            </div>
+
+            <!-- ================= TABS FALLBACKS ================= -->
+            <div id="tab-tech" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-bold">⚙️ Technical SEO Auditor</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200">
+                    <p class="text-slate-600 mb-4">Autonomous daily audits mapping page structures, meta tags, and site rendering performance.</p>
+                    <button class="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg" onclick="alert('Audit running in background')">⚡ Run SEO Audit</button>
+                </div>
+            </div>
+            
+            <div id="tab-seo" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-bold">✍️ SEO Content & Blogs</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200">
+                    <p class="text-slate-600">Discovers search volume gaps against enterprise CPQ products and drafts optimized articles.</p>
+                </div>
+            </div>
+            
+            <div id="tab-social" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-bold">🤝 Reddit & HN Interceptor</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200">
+                    <p class="text-slate-600">Monitors WebGL, custom CAD, and quoting discussions to inject helpful, expert responses.</p>
+                </div>
+            </div>
+            
+            <div id="tab-linkedin" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-bold">💼 LinkedIn Brand Publisher</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200">
+                    <p class="text-slate-600">Assembles value-first manufacturing brand copy to establish authority among engineering managers.</p>
+                </div>
+            </div>
+            
+            <div id="tab-influencers" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-bold">📣 Influencer Infiltration</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200">
+                    <p class="text-slate-600">Matches key physical-manufacturer podcasters and newsletter writers with personalized pitch outlines.</p>
+                </div>
+            </div>
+            
+            <div id="tab-media" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-bold">🎬 Media & Ad Studio</h2>
+                <div class="bg-white p-6 rounded-xl border border-slate-200">
+                    <p class="text-slate-600">Builds short-form vertical video outlines and Google Search/LinkedIn Ad copies targeting competitor pain points.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- APP SCRIPT -->
+    <script>
+        // LEADS DATA ARRAY
+        const leadsData = [
+            {
+                company: "Vantage Elevator Solutions",
+                website: "vantageelevation.com",
+                industry: "Elevators & Escalators Manufacturing",
+                size: "500-1000 employees",
+                competitor: "Tacton",
+                roles: "VP of Sales Ops, VP of Engineering, IT Director",
+                pain: "Struggled with complex elevator configuration rules. Forced to rely heavily on manual engineering checks and expensive Tacton consulting hours ($250+/hr) just to maintain rule changes. Integration with ERP is rigid and costly.",
+                play: "Launch the '10-Min Configurator Challenge'. Build an interactive 3D elevator cab configuration template with structural visual rules on Spokbee, demonstrating zero-developer rule modifications.",
+                savings: "$65,000+ (Eliminating Tacton user seat fees & consultant retainer)"
+            },
+            {
+                company: "Avant Tecno",
+                website: "avanttecno.com",
+                industry: "Industrial & Construction Machinery",
+                size: "200-500 employees",
+                competitor: "Tacton",
+                roles: "Global Sales Director, Dealer Network Manager",
+                pain: "Requires global dealers to configure complex compact loaders. Heavy user-licensing costs for global dealer networks under Tacton. Slow onboarding of new distributors due to Tacton interface complexity.",
+                play: "Pitch Spokbee's flat-rate pricing ($299/mo) with UNLIMITED dealer seats, letting Avant scale their distributor network globally with zero marginal software tax.",
+                savings: "$40,000+"
+            },
+            {
+                company: "Bromma",
+                website: "bromma.com",
+                industry: "Container Handling Equipment & Maritime",
+                size: "200-500 employees",
+                competitor: "Tacton",
+                roles: "Head of Product Management, Operations Director",
+                pain: "Uses Tacton for complex crane spreader specifications. Rigid pricing schemas make dynamic dealer-specific quoting slow and prone to errors.",
+                play: "Offer a direct webhook-based ERP sync blueprint in Spokbee, bypassing Tacton's complex middleware layers.",
+                savings: "$35,000+"
+            },
+            {
+                company: "Andersen Windows & Doors",
+                website: "andersenwindows.com",
+                industry: "Building Materials & Windows",
+                size: "5,000+ employees (Mid-market divisions vulnerable)",
+                competitor: "Threekit",
+                roles: "Director of Digital Experience, VP of Dealer Sales",
+                pain: "High volume of website visitor visual customizer sessions triggers massive 'per-quote' or performance-tier fees from Threekit. Heavy 3D modeling overhead.",
+                play: "Position Spokbee Pro ($299/mo flat) with unlimited 3D WebGL render loads and unlimited quotes, completely eliminating 'growth penalty' pricing models.",
+                savings: "$120,000+ across dealer channels"
+            },
+            {
+                company: "Therma-Tru",
+                website: "thermatru.com",
+                industry: "Building Materials (Entry Doors)",
+                size: "1,000-5,000 employees",
+                competitor: "Threekit",
+                roles: "Head of Product Selection, IT Sales Lead",
+                pain: "Uses Threekit to render complex door selections (styles, glass, hardware, sizing). Volatile usage bills based on consumer page-views.",
+                play: "Pitch Spokbee's self-serve GLB/STL uploading and visual constraint logic solver, removing the need for a dedicated Threekit developer.",
+                savings: "$80,000+"
+            },
+            {
+                company: "Ulrich Building Materials",
+                website: "ulrichsheds.com",
+                industry: "Modular Buildings & Backyard Sheds",
+                size: "50-200 employees",
+                competitor: "Threekit",
+                roles: "CEO, VP of Outbound Sales",
+                pain: "Highly custom backyard cabins and sheds require precise visual fitments. Threekit's custom engineering support is slow and enterprise-focused.",
+                play: "Show how Spokbee's no-code AC-3 engine can let modular structure builders drag-and-drop window and door options with immediate BOM updates.",
+                savings: "$30,000+"
+            },
+            {
+                company: "Coalesse",
+                website: "coalesse.com",
+                industry: "Premium Office & Custom Furniture",
+                size: "50-200 employees",
+                competitor: "Threekit",
+                roles: "Brand Director, Ecommerce Manager",
+                pain: "Volatile per-session pricing for visual desk and chair configurations. Difficulties in integrating visual data with modern HubSpot-driven sales loops.",
+                play: "Demonstrate Spokbee's native, seamless HubSpot CRM contact sync, so dealer configurations flow directly into HubSpot contact records.",
+                savings: "$25,000+"
+            },
+            {
+                company: "RadialSpark",
+                website: "radialspark.com",
+                industry: "B2B Technology Consulting",
+                size: "10-50 employees",
+                competitor: "PandaDoc",
+                roles: "CEO, Sales Ops Lead",
+                pain: "Relied on PandaDoc for document signatures, but struggle with rigid data sync from Salesforce and custom ERP setups. High per-user license model.",
+                play: "Offer Spokbee's lightweight flat-rate quoting with automated PDF quote triggers via flexible webhooks.",
+                savings: "$12,000+"
+            },
+            {
+                company: "OpMentors",
+                website: "opmentors.com",
+                industry: "Salesforce & Technology Integration",
+                size: "10-50 employees",
+                competitor: "PandaDoc",
+                roles: "Operations Director, VP of Growth",
+                pain: "Heavy document volume from FinancialForce/Salesforce quotes causes licensing costs to surge on PandaDoc's per-user model.",
+                play: "Introduce Spokbee's unlimited user access to the sales quoting portal, maintaining single-source pricing rules.",
+                savings: "$15,000+"
+            }
+        ];
+
+        let selectedIndex = 0;
+
+        // SWITCH TABS FUNCTION
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Remove active classes from buttons
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-slate-800', 'text-white');
+                el.classList.add('text-slate-300', 'hover:bg-slate-800/50', 'hover:text-white');
+            });
+            
+            // Show active tab
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            // Style active button
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.add('bg-slate-800', 'text-white');
+            activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800/50', 'hover:text-white');
+            
+            // Breadcrumb update
+            let name = activeBtn.querySelector('span').innerText;
+            document.getElementById('breadcrumb').innerText = name;
+        }
+
+        // LOAD LEAD DETAILS
+        function loadLead(index) {
+            selectedIndex = index;
+            const lead = leadsData[index];
+            document.getElementById('lead-name').innerText = lead.company;
+            document.getElementById('lead-web').innerText = lead.website;
+            document.getElementById('lead-web').href = `https://${lead.website}`;
+            document.getElementById('lead-comp').innerText = lead.competitor;
+            document.getElementById('lead-savings').innerText = lead.savings;
+            document.getElementById('lead-roles').innerText = lead.roles;
+            document.getElementById('lead-size').innerText = lead.size;
+            document.getElementById('lead-pain').innerText = lead.pain;
+            document.getElementById('lead-play').innerText = lead.play;
+            
+            document.getElementById('pitch-output').value = '';
+        }
+
+        // GENERATE DISPLACEMENT OUTREACH PITCH (Herald Tone)
+        function generatePitch() {
+            const lead = leadsData[selectedIndex];
+            let pitchText = '';
+            
+            if (lead.competitor === "Tacton") {
+                pitchText = `Subject: Re-engineering ${lead.company}'s product configuration rules (no custom code)
+
+Hi [First Name],
+
+I was looking at ${lead.company}'s custom configurations, and it's clear you're dealing with serious physical and structural product rules. 
+
+Historically, companies like yours have had to rely on enterprise suites like Tacton to handle complex constraints. But if your team is experiencing what most mid-market manufacturers do, you are probably tired of:
+
+1. Waiting weeks for expensive certified consultants ($200-$400/hr) just to add a simple product option or update pricing schemas.
+2. Rigid systems that take 6-18 months to deploy and keep your engineering and sales teams locked in separate silos.
+
+We designed **Spokbee.ai** specifically for companies like yours. 
+
+We use the same logical constraint engine principles as Tacton, but built it as a visual, self-serve no-code platform. Your engineering team can configure parameters, set rules, and go live in an afternoon instead of months—all for a flat **$299/mo Pro rate** (saving your company an estimated ${lead.savings} in seat licensing and consultant fees).
+
+We are running a **10-Min Configurator Challenge**: Send us one of your Excel pricing/rules sheets or CAD drawings, and we will build a live, functional, interactive 3D WebGL configurator for your product for free in 10 minutes.
+
+Would you be open to seeing a 10-minute demo on how this works for your product catalog?
+
+Best,
+Karina | CMO, Spokbee.ai`;
+            } else if (lead.competitor === "Threekit") {
+                pitchText = `Subject: Stop paying "per-quote" taxes on ${lead.company}'s 3D product customization
+
+Hi [First Name],
+
+I was admiring ${lead.company}'s visual product customizations online. High-fidelity rendering is absolutely critical for physical product buyers.
+
+You are likely using Threekit to manage your visual assets and rules. However, many brands your size eventually hit a major frustration wall with Threekit: **volatile "per-quote" or session-based pricing tiers that penalize your growth.**
+
+If your website traffic doubles, your software bill shouldn't double with it.
+
+At **Spokbee.ai**, we provide gorgeous, high-performance WebGL-based 3D visual configurators for a flat **$299/month Pro tier** with **unlimited quotes and unlimited visual sessions**. No hidden fees, no per-quote usage penalties.
+
+We also make it incredibly easy for your product teams to upload standard GLB/STL files and map pricing rules in minutes using our visual, no-code logic builder (no developers required).
+
+We are currently running a **10-Min Configurator Challenge** where we'll build ${lead.company} a functional, live 3D 10-minute configurator for free. All you need to do is send over a basic product spreadsheet or CAD layout.
+
+Open to checking out what a flat-rate visual sales loop looks like?
+
+Best,
+Karina | CMO, Spokbee.ai`;
+            } else {
+                pitchText = `Subject: Standardizing ${lead.company}'s sales quotes without the per-user seat tax
+
+Hi [First Name],
+
+I noticed your team handles highly customized B2B specifications, which makes automated document generation absolutely essential.
+
+If you are using tools like PandaDoc, your scaling is probably capped by a rigid **per-user licensing model** that gets incredibly expensive as you hire more sales reps or involve engineering and operations in the quoting loop.
+
+We designed **Spokbee.ai** to solve this. It is a dedicated, flat-rate CPQ platform built specifically for high-mix physical customizers for a flat **$299/mo Pro rate** with **unlimited users and unlimited quotes**.
+
+Your entire sales team, dealer network, and engineering coordinators can collaborate in a single source of truth without any marginal software tax. We also integrate directly with HubSpot so your quote metadata flows instantly into your CRM contact timeline.
+
+We would love to show you how this works with our **10-Min Configurator Challenge**. Send us one of your current proposal templates or rules sheets, and we will configure a live, functional quoting portal for free in 10 minutes.
+
+Would you be open to a brief look next week?
+
+Best,
+Karina | CMO, Spokbee.ai`;
+            }
+            
+            document.getElementById('pitch-output').value = pitchText;
+        }
+
+        // COPY TO CLIPBOARD
+        function copyToClipboard() {
+            const copyText = document.getElementById("pitch-output");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("Copied to clipboard!");
+        }
+
+        // SIMULATE AGENT SWEEP
+        function simulateSweep() {
+            alert("⚡ CMO Agents Sweep Triggered successfully! Crawling forums and competitor catalogs inside the cloud server...");
+        }
+
+        // Init
+        loadLead(0);
+    </script>
+</body>
+</html>
