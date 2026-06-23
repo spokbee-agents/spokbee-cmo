@@ -32,7 +32,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex" x-data="cmoApp()">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex">
     
     <!-- SIDEBAR -->
     <aside class="w-80 bg-brand-900 text-white flex flex-col flex-shrink-0">
@@ -48,7 +48,7 @@
         
         <!-- Navigation Menu -->
         <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
-            <p class="px-3 text-2xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Workspace</p>
+            <p class="px-3 text-3xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Workspace</p>
             
             <button onclick="switchTab('dashboard')" id="btn-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-slate-800 text-white nav-btn">
                 <i class="fa-solid fa-chart-line w-5 text-slate-400"></i>
@@ -57,10 +57,10 @@
             
             <button onclick="switchTab('stealer')" id="btn-stealer" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
                 <i class="fa-solid fa-skull-crossbones w-5 text-red-400"></i>
-                <span class="font-semibold text-red-300">Competitor Lead Stealer</span>
+                <span class="font-bold text-red-300">Competitor Lead Stealer</span>
             </button>
             
-            <p class="px-3 text-2xs font-extrabold text-slate-500 uppercase tracking-widest pt-4 mb-2">Orchestrated Agents</p>
+            <p class="px-3 text-3xs font-extrabold text-slate-500 uppercase tracking-widest pt-4 mb-2">Orchestrated Agents</p>
             
             <button onclick="switchTab('geo')" id="btn-geo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
                 <i class="fa-solid fa-globe w-5 text-indigo-400"></i>
@@ -100,8 +100,8 @@
         
         <!-- Footer Info -->
         <div class="p-4 bg-brand-900 border-t border-slate-800 text-xs text-slate-400 text-center">
-            <span>Repository: <code class="text-slate-200">spokbee-cmo</code></span><br>
-            <span>Branch: <code class="text-slate-200">main</code></span>
+            <span>Repository: <code class="text-slate-200 font-mono">spokbee-cmo</code></span><br>
+            <span>Branch: <code class="text-slate-200 font-mono">main</code></span>
         </div>
     </aside>
     
@@ -167,7 +167,6 @@
                     </div>
                     
                     <div class="divide-y divide-slate-100">
-                        <!-- Agent 1 -->
                         <div class="px-6 py-4 flex items-center justify-between">
                             <div class="flex items-center space-x-3.5">
                                 <div class="bg-red-50 p-2.5 rounded-lg text-red-500 text-lg"><i class="fa-solid fa-globe"></i></div>
@@ -178,7 +177,6 @@
                             </div>
                             <span class="bg-emerald-50 text-emerald-700 text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Active 24/7</span>
                         </div>
-                        <!-- Agent 2 -->
                         <div class="px-6 py-4 flex items-center justify-between">
                             <div class="flex items-center space-x-3.5">
                                 <div class="bg-sky-50 p-2.5 rounded-lg text-sky-500 text-lg"><i class="fa-solid fa-gears"></i></div>
@@ -189,7 +187,6 @@
                             </div>
                             <span class="bg-emerald-50 text-emerald-700 text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Daily</span>
                         </div>
-                        <!-- Agent 3 -->
                         <div class="px-6 py-4 flex items-center justify-between">
                             <div class="flex items-center space-x-3.5">
                                 <div class="bg-amber-50 p-2.5 rounded-lg text-amber-500 text-lg"><i class="fa-solid fa-pen-nib"></i></div>
@@ -200,7 +197,6 @@
                             </div>
                             <span class="bg-emerald-50 text-emerald-700 text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Weekly</span>
                         </div>
-                        <!-- Agent 4 -->
                         <div class="px-6 py-4 flex items-center justify-between">
                             <div class="flex items-center space-x-3.5">
                                 <div class="bg-emerald-50 p-2.5 rounded-lg text-emerald-500 text-lg"><i class="fa-solid fa-comments"></i></div>
@@ -217,11 +213,34 @@
             
             <!-- ================= TAB: STEALER (COMPETITOR STEALER) ================= -->
             <div id="tab-stealer" class="tab-content hidden space-y-8">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">⚔️ Competitor Customer Stealer</h2>
-                        <p class="text-slate-500">Query G2, Capterra, and Gartner to compile competitor targets, map their pain, and steal them with high-converting cold outreach.</p>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">⚔️ Competitor Customer Stealer</h2>
+                    <p class="text-slate-500">Targeting and stealing accounts from overpriced and complex competitors (Tacton, Threekit, PandaDoc, etc.) directly into your HubSpot CRM.</p>
+                </div>
+                
+                <!-- HubSpot Setup Card -->
+                <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                    <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2 mb-1">
+                        🔌 HubSpot CRM Direct Synchronizer
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-4">
+                        Connect your HubSpot CRM using a Private App Access Token. Your token is saved securely and locally in your browser (it never leaves your Vercel serverless host).
+                    </p>
+                    <div class="flex flex-col md:flex-row gap-4 items-end">
+                        <div class="flex-1">
+                            <label class="block text-4xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">HubSpot Private App Token</label>
+                            <input type="password" id="hubspot-token" placeholder="pat-na1-xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <button onclick="saveToken()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition whitespace-nowrap">
+                                Save Token
+                            </button>
+                            <button onclick="syncAllLeads()" id="btn-sync-all" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Sync All 9 Leads
+                            </button>
+                        </div>
                     </div>
+                    <div id="sync-status" class="mt-4 hidden p-3 rounded-lg text-xs font-semibold"></div>
                 </div>
                 
                 <!-- Database Grid -->
@@ -241,6 +260,9 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 font-medium">
+                                <script>
+                                    // Render table dynamically
+                                </script>
                                 <tr class="hover:bg-slate-50/50">
                                     <td class="p-4 pl-6"><div class="font-bold text-slate-900">Vantage Elevator Solutions</div><div class="text-2xs text-slate-400">vantageelevation.com</div></td>
                                     <td class="p-4 text-slate-500">Elevator Manufacturing</td>
@@ -256,6 +278,13 @@
                                     <td class="p-4 pr-6 text-right"><button onclick="loadLead(1)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
                                 </tr>
                                 <tr class="hover:bg-slate-50/50">
+                                    <td class="p-4 pl-6"><div class="font-bold text-slate-900">Bromma</div><div class="text-2xs text-slate-400">bromma.com</div></td>
+                                    <td class="p-4 text-slate-500">Container Handling</td>
+                                    <td class="p-4"><span class="bg-red-50 text-red-700 text-3xs px-2 py-0.5 rounded-full font-bold">Tacton</span></td>
+                                    <td class="p-4 text-center text-emerald-600 font-bold">$35,000+</td>
+                                    <td class="p-4 pr-6 text-right"><button onclick="loadLead(2)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/50">
                                     <td class="p-4 pl-6"><div class="font-bold text-slate-900">Andersen Windows & Doors</div><div class="text-2xs text-slate-400">andersenwindows.com</div></td>
                                     <td class="p-4 text-slate-500">Building Materials</td>
                                     <td class="p-4"><span class="bg-pink-50 text-pink-700 text-3xs px-2 py-0.5 rounded-full font-bold">Threekit</span></td>
@@ -264,17 +293,10 @@
                                 </tr>
                                 <tr class="hover:bg-slate-50/50">
                                     <td class="p-4 pl-6"><div class="font-bold text-slate-900">Therma-Tru</div><div class="text-2xs text-slate-400">thermatru.com</div></td>
-                                    <td class="p-4 text-slate-500">Building Materials (Doors)</td>
+                                    <td class="p-4 text-slate-500">Doors Manufacturing</td>
                                     <td class="p-4"><span class="bg-pink-50 text-pink-700 text-3xs px-2 py-0.5 rounded-full font-bold">Threekit</span></td>
                                     <td class="p-4 text-center text-emerald-600 font-bold">$80,000+</td>
                                     <td class="p-4 pr-6 text-right"><button onclick="loadLead(4)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/50">
-                                    <td class="p-4 pl-6"><div class="font-bold text-slate-900">RadialSpark</div><div class="text-2xs text-slate-400">radialspark.com</div></td>
-                                    <td class="p-4 text-slate-500">Consulting & Software</td>
-                                    <td class="p-4"><span class="bg-teal-50 text-teal-700 text-3xs px-2 py-0.5 rounded-full font-bold">PandaDoc</span></td>
-                                    <td class="p-4 text-center text-emerald-600 font-bold">$12,000+</td>
-                                    <td class="p-4 pr-6 text-right"><button onclick="loadLead(7)" class="text-brand-500 hover:text-brand-600 text-xs font-bold">Launch Playbook <i class="fa-solid fa-angle-right ml-1"></i></button></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -301,11 +323,11 @@
                             </div>
                             <div>
                                 <p class="text-slate-400 font-bold uppercase tracking-wider">Target Roles</p>
-                                <p class="text-slate-800 mt-0.5" id="lead-roles">VP of Sales Ops, VP Engineering</p>
+                                <p class="text-slate-800 mt-0.5 font-semibold" id="lead-roles">VP of Sales Ops, VP Engineering</p>
                             </div>
                             <div>
                                 <p class="text-slate-400 font-bold uppercase tracking-wider">Company Size</p>
-                                <p class="text-slate-800 mt-0.5" id="lead-size">500-1000 employees</p>
+                                <p class="text-slate-800 mt-0.5 font-semibold" id="lead-size">500-1000 employees</p>
                             </div>
                         </div>
                         
@@ -322,10 +344,16 @@
                             </div>
                         </div>
                         
-                        <button onclick="generatePitch()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-sm py-3 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-terminal"></i>
-                            <span>Generate Displacement Pitch (Herald Style)</span>
-                        </button>
+                        <div class="flex flex-col gap-2.5">
+                            <button onclick="generatePitch()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm py-3 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-terminal"></i>
+                                <span>Generate Displacement Pitch (Herald Style)</span>
+                            </button>
+                            <button onclick="syncSingleLead()" id="btn-sync-single" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm py-3 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Sync Selected Lead to HubSpot CRM</span>
+                            </button>
+                        </div>
                     </div>
                     
                     <!-- Right: Pitch Output -->
@@ -441,7 +469,7 @@
                 roles: "Global Sales Director, Dealer Network Manager",
                 pain: "Requires global dealers to configure complex compact loaders. Heavy user-licensing costs for global dealer networks under Tacton. Slow onboarding of new distributors due to Tacton interface complexity.",
                 play: "Pitch Spokbee's flat-rate pricing ($299/mo) with UNLIMITED dealer seats, letting Avant scale their distributor network globally with zero marginal software tax.",
-                savings: "$40,000+"
+                savings: "$40,000/year"
             },
             {
                 company: "Bromma",
@@ -452,7 +480,7 @@
                 roles: "Head of Product Management, Operations Director",
                 pain: "Uses Tacton for complex crane spreader specifications. Rigid pricing schemas make dynamic dealer-specific quoting slow and prone to errors.",
                 play: "Offer a direct webhook-based ERP sync blueprint in Spokbee, bypassing Tacton's complex middleware layers.",
-                savings: "$35,000+"
+                savings: "$35,000/year"
             },
             {
                 company: "Andersen Windows & Doors",
@@ -474,7 +502,7 @@
                 roles: "Head of Product Selection, IT Sales Lead",
                 pain: "Uses Threekit to render complex door selections (styles, glass, hardware, sizing). Volatile usage bills based on consumer page-views.",
                 play: "Pitch Spokbee's self-serve GLB/STL uploading and visual constraint logic solver, removing the need for a dedicated Threekit developer.",
-                savings: "$80,000+"
+                savings: "$80,000/year"
             },
             {
                 company: "Ulrich Building Materials",
@@ -485,7 +513,7 @@
                 roles: "CEO, VP of Outbound Sales",
                 pain: "Highly custom backyard cabins and sheds require precise visual fitments. Threekit's custom engineering support is slow and enterprise-focused.",
                 play: "Show how Spokbee's no-code AC-3 engine can let modular structure builders drag-and-drop window and door options with immediate BOM updates.",
-                savings: "$30,000+"
+                savings: "$30,000/year"
             },
             {
                 company: "Coalesse",
@@ -496,7 +524,7 @@
                 roles: "Brand Director, Ecommerce Manager",
                 pain: "Volatile per-session pricing for visual desk and chair configurations. Difficulties in integrating visual data with modern HubSpot-driven sales loops.",
                 play: "Demonstrate Spokbee's native, seamless HubSpot CRM contact sync, so dealer configurations flow directly into HubSpot contact records.",
-                savings: "$25,000+"
+                savings: "$25,000/year"
             },
             {
                 company: "RadialSpark",
@@ -507,7 +535,7 @@
                 roles: "CEO, Sales Ops Lead",
                 pain: "Relied on PandaDoc for document signatures, but struggle with rigid data sync from Salesforce and custom ERP setups. High per-user license model.",
                 play: "Offer Spokbee's lightweight flat-rate quoting with automated PDF quote triggers via flexible webhooks.",
-                savings: "$12,000+"
+                savings: "$12,000/year"
             },
             {
                 company: "OpMentors",
@@ -518,30 +546,129 @@
                 roles: "Operations Director, VP of Growth",
                 pain: "Heavy document volume from FinancialForce/Salesforce quotes causes licensing costs to surge on PandaDoc's per-user model.",
                 play: "Introduce Spokbee's unlimited user access to the sales quoting portal, maintaining single-source pricing rules.",
-                savings: "$15,000+"
+                savings: "$15,000/year"
             }
         ];
 
         let selectedIndex = 0;
 
+        // LOAD SAVED HUBSPOT TOKEN
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedToken = localStorage.getItem('hubspot_token');
+            if (savedToken) {
+                document.getElementById('hubspot-token').value = savedToken;
+            }
+        });
+
+        function saveToken() {
+            const token = document.getElementById('hubspot-token').value.trim();
+            if (token) {
+                localStorage.setItem('hubspot_token', token);
+                alert('HubSpot Token saved securely in your browser!');
+            } else {
+                localStorage.removeItem('hubspot_token');
+                alert('HubSpot Token cleared.');
+            }
+        }
+
+        // SYNC SINGLE LEAD TO HUBSPOT
+        async function syncSingleLead() {
+            const token = localStorage.getItem('hubspot_token') || document.getElementById('hubspot-token').value.trim();
+            if (!token) {
+                alert('Please save your HubSpot Private App Token first!');
+                return;
+            }
+            
+            const lead = leadsData[selectedIndex];
+            const btn = document.getElementById('btn-sync-single');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Syncing...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/sync-hubspot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, leads: [lead] })
+                });
+                
+                const data = await response.json();
+                if (data.success && data.results[0].success) {
+                    alert(`✓ Success! Vantage Elevator Solutions created inside your HubSpot CRM as a contact.`);
+                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Synced successfully!';
+                    btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                    btn.classList.add('bg-slate-500');
+                } else {
+                    const errDetail = data.results ? JSON.stringify(data.results[0].error) : data.error;
+                    alert(`❌ HubSpot Error: ${errDetail}`);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                alert(`Error connecting to sync server: ${err.message}`);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // SYNC ALL LEADS TO HUBSPOT (BATCH)
+        async function syncAllLeads() {
+            const token = localStorage.getItem('hubspot_token') || document.getElementById('hubspot-token').value.trim();
+            if (!token) {
+                alert('Please save your HubSpot Private App Token first!');
+                return;
+            }
+            
+            const btn = document.getElementById('btn-sync-all');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Syncing all...';
+            btn.disabled = true;
+            
+            const statusDiv = document.getElementById('sync-status');
+            statusDiv.className = "mt-4 p-3 rounded-lg text-xs bg-blue-50 text-blue-800 block";
+            statusDiv.innerText = `Starting batch synchronization of all ${leadsData.length} competitor leads...`;
+            
+            try {
+                const response = await fetch('/api/sync-hubspot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, leads: leadsData })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const succeeded = data.results.filter(r => r.success).length;
+                    statusDiv.className = "mt-4 p-3 rounded-lg text-xs bg-emerald-50 text-emerald-800 block font-semibold";
+                    statusDiv.innerHTML = `✓ Successfully synchronized ${succeeded} / ${leadsData.length} competitor leads directly into your HubSpot CRM!`;
+                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> CRM Synced';
+                    btn.disabled = true;
+                } else {
+                    statusDiv.className = "mt-4 p-3 rounded-lg text-xs bg-red-50 text-red-800 block font-semibold";
+                    statusDiv.innerText = `❌ Error: ${data.error}`;
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                statusDiv.className = "mt-4 p-3 rounded-lg text-xs bg-red-50 text-red-800 block font-semibold";
+                statusDiv.innerText = `Error: ${err.message}`;
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
         // SWITCH TABS FUNCTION
         function switchTab(tabId) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            // Remove active classes from buttons
             document.querySelectorAll('.nav-btn').forEach(el => {
                 el.classList.remove('bg-slate-800', 'text-white');
                 el.classList.add('text-slate-300', 'hover:bg-slate-800/50', 'hover:text-white');
             });
             
-            // Show active tab
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            // Style active button
             const activeBtn = document.getElementById(`btn-${tabId}`);
             activeBtn.classList.add('bg-slate-800', 'text-white');
             activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800/50', 'hover:text-white');
             
-            // Breadcrumb update
             let name = activeBtn.querySelector('span').innerText;
             document.getElementById('breadcrumb').innerText = name;
         }
@@ -561,9 +688,15 @@
             document.getElementById('lead-play').innerText = lead.play;
             
             document.getElementById('pitch-output').value = '';
+            
+            // Reset sync single button style
+            const btn = document.getElementById('btn-sync-single');
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Sync Selected Lead to HubSpot CRM</span>';
+            btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm py-3 rounded-xl shadow-md transition flex items-center justify-center space-x-2";
+            btn.disabled = false;
         }
 
-        // GENERATE DISPLACEMENT OUTREACH PITCH (Herald Tone)
+        // GENERATE DISPLACEMENT OUTREACH PITCH
         function generatePitch() {
             const lead = leadsData[selectedIndex];
             let pitchText = '';
@@ -635,7 +768,6 @@ Karina | CMO, Spokbee.ai`;
             document.getElementById('pitch-output').value = pitchText;
         }
 
-        // COPY TO CLIPBOARD
         function copyToClipboard() {
             const copyText = document.getElementById("pitch-output");
             copyText.select();
@@ -644,7 +776,6 @@ Karina | CMO, Spokbee.ai`;
             alert("Copied to clipboard!");
         }
 
-        // SIMULATE AGENT SWEEP
         function simulateSweep() {
             alert("⚡ CMO Agents Sweep Triggered successfully! Crawling forums and competitor catalogs inside the cloud server...");
         }
