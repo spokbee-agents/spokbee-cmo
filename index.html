@@ -32,18 +32,27 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex">
+<body class="bg-slate-50 text-slate-800 font-sans h-screen flex overflow-hidden relative">
+
+    <!-- SIDEBAR BACKDROP -->
+    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-30 lg:hidden hidden"></div>
     
     <!-- SIDEBAR -->
-    <aside class="w-80 bg-brand-900 text-white flex flex-col flex-shrink-0">
-        <div class="p-6 border-b border-slate-800 flex items-center space-x-3">
-            <div class="bg-brand-500 p-2.5 rounded-lg text-white font-extrabold text-xl">
-                🐝
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-80 bg-brand-900 text-white flex flex-col flex-shrink-0 transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-300 ease-in-out">
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-500 p-2.5 rounded-lg text-white font-extrabold text-xl">
+                    🐝
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-tight">SPOKBEE AI</h1>
+                    <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">CMO Command Center</p>
+                </div>
             </div>
-            <div>
-                <h1 class="font-extrabold text-lg tracking-tight">SPOKBEE AI</h1>
-                <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">CMO Command Center</p>
-            </div>
+            <!-- Close Sidebar Button for Mobile -->
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition focus:outline-none">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
         </div>
         
         <!-- Navigation Menu -->
@@ -108,23 +117,29 @@
     <!-- MAIN CONTENT AREA -->
     <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <!-- TOP NAV -->
-        <header class="bg-white border-b border-slate-200 h-20 px-8 flex items-center justify-between flex-shrink-0">
-            <div class="flex items-center space-x-2">
-                <span class="text-slate-400 text-sm font-semibold">Workspace</span>
-                <span class="text-slate-300">/</span>
-                <span id="breadcrumb" class="text-slate-800 font-bold text-sm">Command Dashboard</span>
+        <header class="bg-white border-b border-slate-200 h-20 px-4 md:px-8 flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center space-x-3 min-w-0">
+                <!-- Hamburger Menu Button (Mobile) -->
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition focus:outline-none flex-shrink-0">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center space-x-1.5 md:space-x-2 min-w-0">
+                    <span class="text-slate-400 text-xs md:text-sm font-semibold hidden sm:inline">Workspace</span>
+                    <span class="text-slate-300 hidden sm:inline">/</span>
+                    <span id="breadcrumb" class="text-slate-800 font-bold text-sm truncate">Command Dashboard</span>
+                </div>
             </div>
             
-            <div class="flex items-center space-x-4">
-                <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full flex items-center space-x-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div class="flex items-center space-x-4 flex-shrink-0">
+                <span class="bg-emerald-50 text-emerald-700 text-3xs md:text-xs font-bold px-2.5 py-1 rounded-full flex items-center space-x-1.5">
+                    <span class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span>Orchestration Live</span>
                 </span>
             </div>
         </header>
         
         <!-- DASHBOARD CONTAINER -->
-        <div class="flex-1 p-8">
+        <div class="flex-1 p-4 md:p-8">
             
             <!-- ================= TAB: DASHBOARD ================= -->
             <div id="tab-dashboard" class="tab-content space-y-8">
@@ -144,7 +159,7 @@
                     </div>
                     <p class="text-xs text-slate-500">Click any button below to instantly trigger and run that agent's playbook command in the live cloud console.</p>
                     
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-2">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
                         <button onclick="runQuickCommand('geo')" class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-100 hover:border-slate-200 transition text-center group">
                             <span class="text-lg group-hover:scale-110 transition duration-200">🌐</span>
                             <code class="text-3xs font-extrabold text-brand-500 mt-2 font-mono">run geo spokbee.ai</code>
@@ -189,23 +204,23 @@
                 </div>
                 
                 <!-- Metrics -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-white border border-slate-200 p-5 md:p-6 rounded-xl shadow-2xs">
                         <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Active Agents</p>
                         <h3 class="text-3xl font-extrabold text-slate-900 mt-1">8 / 8</h3>
                         <p class="text-xs text-emerald-600 font-bold mt-2"><i class="fa-solid fa-circle-check"></i> System Nominal</p>
                     </div>
-                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                    <div class="bg-white border border-slate-200 p-5 md:p-6 rounded-xl shadow-2xs">
                         <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Competitor Stolen Leads</p>
                         <h3 class="text-3xl font-extrabold text-slate-900 mt-1">9 Accounts</h3>
                         <p class="text-xs text-red-500 font-bold mt-2"><i class="fa-solid fa-crosshairs"></i> Target: Competitor Users</p>
                     </div>
-                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                    <div class="bg-white border border-slate-200 p-5 md:p-6 rounded-xl shadow-2xs">
                         <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Pending Review</p>
                         <h3 class="text-3xl font-extrabold text-slate-900 mt-1">5 Drafts</h3>
                         <p class="text-xs text-amber-600 font-bold mt-2"><i class="fa-solid fa-hourglass-half"></i> Awaiting Approval</p>
                     </div>
-                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs">
+                    <div class="bg-white border border-slate-200 p-5 md:p-6 rounded-xl shadow-2xs">
                         <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Est. Prospect Savings</p>
                         <h3 class="text-3xl font-extrabold text-slate-900 mt-1">$412,000+</h3>
                         <p class="text-xs text-emerald-600 font-bold mt-2"><i class="fa-solid fa-piggy-bank"></i> Annual aggregate</p>
@@ -353,9 +368,9 @@
                 </div>
                 
                 <!-- Playbook Panel -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 font-sans">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 font-sans">
                     <!-- Left: Details -->
-                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs space-y-5">
+                    <div class="bg-white border border-slate-200 p-5 md:p-6 rounded-xl shadow-2xs space-y-5">
                         <div class="border-b border-slate-100 pb-4">
                             <h3 class="font-extrabold text-slate-900 text-lg" id="lead-name">Vantage Elevator Solutions</h3>
                             <a href="#" target="_blank" class="text-xs text-brand-500 font-semibold" id="lead-web">vantageelevation.com</a>
@@ -406,7 +421,7 @@
                     </div>
                     
                     <!-- Right: Pitch Output -->
-                    <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs flex flex-col min-h-[500px]">
+                    <div class="bg-white border border-slate-200 p-5 md:p-6 rounded-xl shadow-2xs flex flex-col min-h-[400px] lg:min-h-[500px]">
                         <div class="border-b border-slate-100 pb-4 flex justify-between items-center">
                             <h3 class="font-extrabold text-slate-900 text-sm">Outbox Pitch Generator</h3>
                             <button onclick="copyToClipboard()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-200 transition">
@@ -415,7 +430,7 @@
                         </div>
                         
                         <div class="flex-1 mt-4">
-                            <textarea id="pitch-output" readonly class="w-full h-full min-h-[400px] border-0 outline-none focus:ring-0 text-slate-800 text-sm font-mono leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100" placeholder="Pitch output will generate here..."></textarea>
+                            <textarea id="pitch-output" readonly class="w-full h-full min-h-[300px] lg:min-h-[400px] border-0 outline-none focus:ring-0 text-slate-800 text-sm font-mono leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100" placeholder="Pitch output will generate here..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -495,32 +510,32 @@
     </main>
 
     <!-- TERMINAL OVERLAY MODAL -->
-    <div id="terminal-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-6 z-50 hidden">
-        <div class="bg-[#1e1e24] border border-slate-700 w-full max-w-3xl rounded-xl shadow-2xl flex flex-col overflow-hidden">
+    <div id="terminal-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 z-50 hidden">
+        <div class="bg-[#1e1e24] border border-slate-700 w-full max-w-3xl rounded-xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
             <!-- Header -->
-            <div class="bg-[#15151a] px-5 py-3 border-b border-slate-800 flex justify-between items-center flex-shrink-0">
+            <div class="bg-[#15151a] px-4 sm:px-5 py-3 border-b border-slate-800 flex justify-between items-center flex-shrink-0">
                 <div class="flex items-center space-x-2">
                     <span class="w-3 h-3 rounded-full bg-red-500"></span>
                     <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
                     <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                    <span class="text-slate-400 font-mono text-xs pl-3 font-semibold">spokbee-cmo-agents -- console</span>
+                    <span class="text-slate-400 font-mono text-3xs sm:text-xs pl-2 sm:pl-3 font-semibold truncate">spokbee-cmo-agents -- console</span>
                 </div>
                 <button onclick="closeTerminal()" class="text-slate-500 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <!-- Body -->
-            <div class="p-6 font-mono text-sm text-slate-300 leading-relaxed overflow-y-auto flex-1 h-[450px]">
+            <div class="p-4 sm:p-6 font-mono text-xs sm:text-sm text-slate-300 leading-relaxed overflow-y-auto flex-1 max-h-[60vh]">
                 <div class="flex items-center space-x-2">
-                    <span class="text-emerald-500 font-bold">spokbee-cmo@admin:~$</span>
-                    <span class="font-bold text-white" id="console-cmd">run geo spokbee.ai</span>
+                    <span class="text-emerald-500 font-bold text-xs sm:text-sm">spokbee-cmo@admin:~$</span>
+                    <span class="font-bold text-white text-xs sm:text-sm" id="console-cmd">run geo spokbee.ai</span>
                 </div>
                 
                 <!-- Live Logs -->
-                <div id="console-logs" class="mt-4 text-xs space-y-1 text-slate-400">
+                <div id="console-logs" class="mt-4 text-3xs sm:text-xs space-y-1 text-slate-400">
                     <!-- Logs dynamically appended here -->
                 </div>
                 
                 <!-- Output text -->
-                <div id="console-output" class="mt-6 border-t border-slate-800 pt-4 text-white hidden whitespace-pre-wrap font-sans">
+                <div id="console-output" class="mt-6 border-t border-slate-800 pt-4 text-white hidden whitespace-pre-wrap font-sans text-xs sm:text-sm">
                     <!-- Output goes here -->
                 </div>
             </div>
@@ -747,6 +762,14 @@
             }
         }
 
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
         // SWITCH TABS FUNCTION
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -762,6 +785,14 @@
             
             let name = activeBtn.querySelector('span').innerText;
             document.getElementById('breadcrumb').innerText = name;
+
+            // Close sidebar on mobile after selecting a tab
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
         }
 
         // LOAD LEAD DETAILS
