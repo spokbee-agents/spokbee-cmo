@@ -1,6 +1,7 @@
 import os
 import json
 import httpx
+import re
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -409,3 +410,73 @@ def run_generate(payload: GenerateInput):
         )
 
     return {"text": text, "engine": "spokbee-local-cmo-mind"}
+
+
+class SyncHubspotInput(BaseModel):
+    token: str
+    leads: list
+
+@app.post("/api/sync-hubspot")
+async def sync_hubspot(payload: SyncHubspotInput):
+    token = payload.token
+    leads = payload.leads
+    
+    results = []
+    async with httpx.AsyncClient() as client:
+        for lead in leads:
+            company = lead.get("company", "")
+            website = lead.get("website", "")
+            industry = lead.get("industry", "")
+            competitor = lead.get("competitor", "")
+            savings = lead.get("savings", "")
+            pain = lead.get("pain", "")
+            play = lead.get("play", "")
+            
+            # Clean email generation
+            clean_domain = website.replace("https://", "").replace("http://", "").replace("www.", "") if website else ""
+            if clean_domain:
+                email = f"info@{clean_domain}"
+            else:
+                email = f"{re.sub(r'[^a-z0-9]', '', company.lower())}@spokbee-target.com"
+                
+            hubspot_payload = {
+                "properties": {
+                    "email": email,
+                    "firstname": company,
+                    "lastname": "CMO Target Prospect",
+                    "company": company,
+                    "website": website,
+                    "industry": industry,
+                    "description": f"Current Competitor Used: {competitor}\nProjected Savings: {savings}\n\nDetected Pain Point:\n{pain}\n\nSpokbee Attack Play:\n{play}"
+                }
+            }
+            
+            try:
+                response = await client.post(
+                    "https://api.hubapi.com/crm/v3/objects/contacts",
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "Content-Type": "application/json"
+                    },
+                    json=hubspot_payload,
+                    timeout=10.0
+                )
+                
+                resp_data = response.json()
+                results.append({
+                    "company": company,
+                    "status": response.status_code,
+                    "success": response.status_code in [200, 201],
+                    "id": resp_data.get("id") if response.status_code in [200, 201] else None,
+                    "error": resp_data if response.status_code not in [200, 201] else None
+                })
+            except Exception as e:
+                results.append({
+                    "company": company,
+                    "status": 500,
+                    "success": False,
+                    "id": None,
+                    "error": str(e)
+                })
+                
+    return {"success": True, "results": results}
