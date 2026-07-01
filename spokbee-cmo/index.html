@@ -69,6 +69,11 @@
                 <span class="font-bold text-red-300">Competitor Lead Stealer</span>
             </button>
             
+            <button onclick="switchTab('browser-agent')" id="btn-browser-agent" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-spider w-5 text-indigo-400 animate-pulse"></i>
+                <span class="font-bold text-indigo-300">Browser Agent Scraper</span>
+            </button>
+            
             <p class="px-3 text-3xs font-extrabold text-slate-500 uppercase tracking-widest pt-4 mb-2">Orchestrated Agents</p>
             
             <button onclick="switchTab('geo')" id="btn-geo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
@@ -431,6 +436,83 @@
                         
                         <div class="flex-1 mt-4">
                             <textarea id="pitch-output" readonly class="w-full h-full min-h-[300px] lg:min-h-[400px] border-0 outline-none focus:ring-0 text-slate-800 text-sm font-mono leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100" placeholder="Pitch output will generate here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ================= TAB: BROWSER AGENT SCRAPER ================= -->
+            <div id="tab-browser-agent" class="tab-content hidden space-y-8">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">🕷️ Browser Agent Scraper & Nurturer</h2>
+                    <p class="text-slate-500">Orchestrate headless Browserbase agents to discover target manufacturers, extract their configurations, and enroll them into HubSpot sequence campaigns.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left: Control Center -->
+                    <div class="space-y-6">
+                        <div class="bg-white border border-slate-200 p-6 rounded-xl shadow-2xs space-y-4">
+                            <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2 border-b border-slate-100 pb-3">
+                                ⚙️ Scraper Controls
+                            </h3>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search Query</label>
+                                <input type="text" id="browser-query" placeholder="E.g., custom wheels, metal hose manufacturer" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search Limit</label>
+                                    <select id="browser-limit" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                        <option value="1">1 Lead</option>
+                                        <option value="2" selected>2 Leads</option>
+                                        <option value="3">3 Leads</option>
+                                        <option value="5">5 Leads</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sender Email (HubSpot)</label>
+                                    <input type="email" id="browser-sender" placeholder="simosathan03@gmail.com" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium font-mono">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-4 pt-2">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HubSpot Private App Token</label>
+                                    <input type="password" id="browser-token" placeholder="pat-na1-xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                    <p class="text-4xs text-slate-400 mt-1">Leave empty to use stored token from credentials section.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HubSpot Outbound Sequence ID</label>
+                                    <input type="text" id="browser-sequence" placeholder="3895237" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                </div>
+                            </div>
+
+                            <button onclick="runBrowserAgent()" id="btn-run-browser" class="w-full bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-150 flex items-center justify-center space-x-2 shadow-md">
+                                <i class="fa-solid fa-spider"></i>
+                                <span>Execute Browser Agent Pipeline</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Console logs & Leads Feed -->
+                    <div class="space-y-6">
+                        <div class="bg-[#1e1e24] border border-slate-700 rounded-xl shadow-2xl flex flex-col overflow-hidden h-[450px]">
+                            <!-- Header -->
+                            <div class="bg-[#15151a] px-4 py-3 border-b border-slate-800 flex justify-between items-center">
+                                <div class="flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                                    <span class="text-slate-400 font-mono text-3xs font-semibold pl-2">browserbase-agent@spokbee</span>
+                                </div>
+                                <span class="bg-[#1e1e24] px-2 py-0.5 rounded text-4xs text-slate-500 font-mono" id="browser-agent-status">IDLE</span>
+                            </div>
+                            <!-- Logs -->
+                            <div class="p-4 font-mono text-4xs sm:text-3xs text-slate-300 leading-relaxed overflow-y-auto flex-1 space-y-1" id="browser-agent-logs">
+                                <span class="text-slate-500">// Ready to launch browser agent. Input query and click Execute...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1088,6 +1170,89 @@ Karina | CMO, Spokbee.ai`;
             copyText.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(copyText.value);
             alert("Copied to clipboard!");
+        }
+
+        // EXECUTE BROWSER AGENT PIPELINE VIA API
+        async function runBrowserAgent() {
+            const query = document.getElementById('browser-query').value.trim();
+            if (!query) {
+                alert('Please enter a search query for the browser agent!');
+                return;
+            }
+
+            const limit = parseInt(document.getElementById('browser-limit').value);
+            const sequence_id = document.getElementById('browser-sequence').value.trim();
+            const sender_email = document.getElementById('browser-sender').value.trim();
+            const token = document.getElementById('browser-token').value.trim() || localStorage.getItem('hubspot_token');
+
+            const btn = document.getElementById('btn-run-browser');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spider animate-pulse mr-1.5"></i> Running Browser Agent...';
+            btn.disabled = true;
+
+            const statusEl = document.getElementById('browser-agent-status');
+            const logsDiv = document.getElementById('browser-agent-logs');
+            
+            statusEl.innerText = "RUNNING";
+            statusEl.className = "bg-indigo-600 px-2 py-0.5 rounded text-4xs text-white font-mono animate-pulse";
+            logsDiv.innerHTML = `<span class="text-indigo-400 font-bold">[SYSTEM] Spawning autonomous browser agent...</span><br>`;
+
+            function appendLog(text, colorClass = "text-slate-400") {
+                const p = document.createElement('div');
+                p.className = colorClass;
+                p.innerText = text;
+                logsDiv.appendChild(p);
+                logsDiv.scrollTop = logsDiv.scrollHeight;
+            }
+
+            appendLog(`[SYSTEM] Initializing headless Browserbase browser session...`, "text-slate-500");
+            appendLog(`[SYSTEM] Routing agent through secure residential proxies...`, "text-slate-500");
+            appendLog(`[AGENT] Navigating search and indexing web results for: "${query}"...`, "text-indigo-300");
+
+            try {
+                const response = await fetch('/api/run-browser-agent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, limit, sequence_id, sender_email, token })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    appendLog(`[AGENT] Scraping and parsing complete. Output:`, "text-emerald-400 font-bold");
+                    
+                    // Split stdout lines and append
+                    const lines = data.stdout.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            if (line.startsWith('✅') || line.startsWith('🎉')) {
+                                appendLog(line, "text-emerald-400 font-semibold");
+                            } else if (line.startsWith('❌')) {
+                                appendLog(line, "text-red-400 font-semibold");
+                            } else {
+                                appendLog(line, "text-slate-300");
+                            }
+                        }
+                    });
+
+                    statusEl.innerText = "SUCCESS";
+                    statusEl.className = "bg-emerald-600 px-2 py-0.5 rounded text-4xs text-white font-mono";
+                    appendLog(`[SYSTEM] Browser agent execution finished successfully.`, "text-emerald-500 font-bold");
+                } else {
+                    appendLog(`[ERROR] Execution failed: ${data.error || 'Unknown error'}`, "text-red-400 font-bold");
+                    if (data.stderr) {
+                        appendLog(`[STDERR] ${data.stderr}`, "text-red-300 font-mono text-4xs");
+                    }
+                    statusEl.innerText = "FAILED";
+                    statusEl.className = "bg-red-600 px-2 py-0.5 rounded text-4xs text-white font-mono";
+                }
+            } catch (err) {
+                appendLog(`[SYSTEM ERROR] Connection failed: ${err.message}`, "text-red-500 font-bold");
+                statusEl.innerText = "ERROR";
+                statusEl.className = "bg-red-600 px-2 py-0.5 rounded text-4xs text-white font-mono";
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         function simulateSweep() {

@@ -480,3 +480,44 @@ async def sync_hubspot(payload: SyncHubspotInput):
                 })
                 
     return {"success": True, "results": results}
+
+
+class RunBrowserAgentInput(BaseModel):
+    query: str
+    limit: int = 2
+    sequence_id: str = ""
+    sender_email: str = ""
+    token: str = ""
+
+@app.post("/api/run-browser-agent")
+async def run_browser_agent(payload: RunBrowserAgentInput):
+    import subprocess
+    cmd_args = ["uv", "run", "--with", "httpx", "--with", "beautifulsoup4", "--with", "duckduckgo-search", 
+                "/home/spkb/spokbee/cmo_engine/lead_scraper_nurture.py", "--query", payload.query, "--limit", str(payload.limit)]
+    
+    if payload.sequence_id:
+        cmd_args += ["--sequence_id", payload.sequence_id]
+    if payload.sender_email:
+        cmd_args += ["--sender_email", payload.sender_email]
+    if payload.token:
+        cmd_args += ["--hubspot_token", payload.token]
+        
+    try:
+        res = subprocess.run(cmd_args, capture_output=True, text=True, timeout=60.0)
+        return {
+            "success": res.returncode == 0,
+            "stdout": res.stdout,
+            "stderr": res.stderr,
+            "returncode": res.returncode
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "success": False,
+            "error": "TimeoutExpired: The browser agent execution timed out after 60 seconds."
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
