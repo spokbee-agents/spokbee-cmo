@@ -488,19 +488,24 @@ class RunBrowserAgentInput(BaseModel):
     sequence_id: str = ""
     sender_email: str = ""
     token: str = ""
+    play_type: str = "scrape"
 
 @app.post("/api/run-browser-agent")
 async def run_browser_agent(payload: RunBrowserAgentInput):
     import subprocess
-    cmd_args = ["uv", "run", "--with", "httpx", "--with", "beautifulsoup4", "--with", "duckduckgo-search", 
-                "/home/spkb/spokbee/cmo_engine/lead_scraper_nurture.py", "--query", payload.query, "--limit", str(payload.limit)]
-    
-    if payload.sequence_id:
-        cmd_args += ["--sequence_id", payload.sequence_id]
-    if payload.sender_email:
-        cmd_args += ["--sender_email", payload.sender_email]
-    if payload.token:
-        cmd_args += ["--hubspot_token", payload.token]
+    if payload.play_type == "audit":
+        cmd_args = ["uv", "run", "--with", "playwright", "--with", "beautifulsoup4", "--with", "httpx", 
+                    "/home/spkb/spokbee/cmo_engine/browserbase_audit_agent.py", "--domain", payload.query]
+    else:
+        cmd_args = ["uv", "run", "--with", "httpx", "--with", "beautifulsoup4", "--with", "duckduckgo-search", 
+                    "/home/spkb/spokbee/cmo_engine/lead_scraper_nurture.py", "--query", payload.query, "--limit", str(payload.limit)]
+        
+        if payload.sequence_id:
+            cmd_args += ["--sequence_id", payload.sequence_id]
+        if payload.sender_email:
+            cmd_args += ["--sender_email", payload.sender_email]
+        if payload.token:
+            cmd_args += ["--hubspot_token", payload.token]
         
     try:
         res = subprocess.run(cmd_args, capture_output=True, text=True, timeout=60.0)

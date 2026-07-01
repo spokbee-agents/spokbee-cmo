@@ -457,35 +457,45 @@
                             </h3>
                             
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search Query</label>
-                                <input type="text" id="browser-query" placeholder="E.g., custom wheels, metal hose manufacturer" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search Query / Target Domain</label>
+                                <input type="text" id="browser-query" placeholder="E.g., custom wheels (for scrape) or forgeline.com (for audit)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium">
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search Limit</label>
-                                    <select id="browser-limit" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium">
-                                        <option value="1">1 Lead</option>
-                                        <option value="2" selected>2 Leads</option>
-                                        <option value="3">3 Leads</option>
-                                        <option value="5">5 Leads</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sender Email (HubSpot)</label>
-                                    <input type="email" id="browser-sender" placeholder="simosathan03@gmail.com" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium font-mono">
-                                </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Campaign Play Type</label>
+                                <select id="browser-play-type" onchange="togglePlayFields()" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                    <option value="scrape" selected>Lead Scraper & CRM Nurture Sequence (DuckDuckGo + HubSpot Sync)</option>
+                                    <option value="audit">Visual Mobile UX Audit Campaign (Headless Mobile Screenshot + Email Draft)</option>
+                                </select>
                             </div>
 
-                            <div class="grid grid-cols-1 gap-4 pt-2">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HubSpot Private App Token</label>
-                                    <input type="password" id="browser-token" placeholder="pat-na1-xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500 font-medium">
-                                    <p class="text-4xs text-slate-400 mt-1">Leave empty to use stored token from credentials section.</p>
+                            <div id="hubspot-fields-container" class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Search Limit</label>
+                                        <select id="browser-limit" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                            <option value="1">1 Lead</option>
+                                            <option value="2" selected>2 Leads</option>
+                                            <option value="3">3 Leads</option>
+                                            <option value="5">5 Leads</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sender Email (HubSpot)</label>
+                                        <input type="email" id="browser-sender" placeholder="simosathan03@gmail.com" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 font-medium font-mono">
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HubSpot Outbound Sequence ID</label>
-                                    <input type="text" id="browser-sequence" placeholder="3895237" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+
+                                <div class="grid grid-cols-1 gap-4 pt-2">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HubSpot Private App Token</label>
+                                        <input type="password" id="browser-token" placeholder="pat-na1-xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                        <p class="text-4xs text-slate-400 mt-1">Leave empty to use stored token from credentials section.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">HubSpot Outbound Sequence ID</label>
+                                        <input type="text" id="browser-sequence" placeholder="3895237" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                                    </div>
                                 </div>
                             </div>
 
@@ -1172,14 +1182,26 @@ Karina | CMO, Spokbee.ai`;
             alert("Copied to clipboard!");
         }
 
+        // TOGGLE HUBSPOT FIELDS BASED ON PLAY TYPE
+        function togglePlayFields() {
+            const playType = document.getElementById('browser-play-type').value;
+            const container = document.getElementById('hubspot-fields-container');
+            if (playType === "audit") {
+                container.classList.add('hidden');
+            } else {
+                container.classList.remove('hidden');
+            }
+        }
+
         // EXECUTE BROWSER AGENT PIPELINE VIA API
         async function runBrowserAgent() {
             const query = document.getElementById('browser-query').value.trim();
             if (!query) {
-                alert('Please enter a search query for the browser agent!');
+                alert('Please enter a search query or domain!');
                 return;
             }
 
+            const play_type = document.getElementById('browser-play-type').value;
             const limit = parseInt(document.getElementById('browser-limit').value);
             const sequence_id = document.getElementById('browser-sequence').value.trim();
             const sender_email = document.getElementById('browser-sender').value.trim();
@@ -1195,7 +1217,7 @@ Karina | CMO, Spokbee.ai`;
             
             statusEl.innerText = "RUNNING";
             statusEl.className = "bg-indigo-600 px-2 py-0.5 rounded text-4xs text-white font-mono animate-pulse";
-            logsDiv.innerHTML = `<span class="text-indigo-400 font-bold">[SYSTEM] Spawning autonomous browser agent...</span><br>`;
+            logsDiv.innerHTML = `<span class="text-indigo-400 font-bold">[SYSTEM] Spawning autonomous browser agent [PLAY: ${play_type.toUpperCase()}]...</span><br>`;
 
             function appendLog(text, colorClass = "text-slate-400") {
                 const p = document.createElement('div');
@@ -1207,13 +1229,18 @@ Karina | CMO, Spokbee.ai`;
 
             appendLog(`[SYSTEM] Initializing headless Browserbase browser session...`, "text-slate-500");
             appendLog(`[SYSTEM] Routing agent through secure residential proxies...`, "text-slate-500");
-            appendLog(`[AGENT] Navigating search and indexing web results for: "${query}"...`, "text-indigo-300");
+            
+            if (play_type === "audit") {
+                appendLog(`[AGENT] Starting mobile-viewport visual audit on domain: "${query}"...`, "text-indigo-300");
+            } else {
+                appendLog(`[AGENT] Navigating search and indexing web results for query: "${query}"...`, "text-indigo-300");
+            }
 
             try {
                 const response = await fetch('/api/run-browser-agent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, limit, sequence_id, sender_email, token })
+                    body: JSON.stringify({ query, limit, sequence_id, sender_email, token, play_type })
                 });
 
                 const data = await response.json();
