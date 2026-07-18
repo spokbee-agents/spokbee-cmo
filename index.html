@@ -438,7 +438,6 @@
                                 <tr class="bg-slate-950 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800 text-3xs sticky top-0 z-10">
                                     <th class="p-4 pl-6">Company</th>
                                     <th class="p-4">Industry</th>
-                                    <th class="p-4">Competitor Used</th>
                                     <th class="p-4 text-center">Projected Savings</th>
                                     <th class="p-4">Status</th>
                                     <th class="p-4 pr-6 text-right">Action</th>
@@ -893,7 +892,7 @@
             console.log("Initializing CRM Workspace...");
             
             // Version checking for seed data force-update
-            const currentVersion = '5.0';
+            const currentVersion = '6.0';
             const savedVersion = localStorage.getItem('crm_version');
             if (savedVersion !== currentVersion) {
                 console.log("New CRM data version detected, forcing cache update...");
@@ -1129,7 +1128,6 @@
                         <div class="text-2xs text-slate-500">${escapeHtml(lead.website)}</div>
                     </td>
                     <td class="p-4 text-slate-400 text-xs">${escapeHtml(lead.industry || 'N/A')}</td>
-                    <td class="p-4"><span class="text-3xs px-2 py-0.5 rounded-full ${competitorClass}">${escapeHtml(lead.competitor)}</span></td>
                     <td class="p-4 text-center text-emerald-400 font-bold">${escapeHtml(lead.savings || 'N/A')}</td>
                     <td class="p-4"><span class="text-3xs px-2 py-0.5 rounded-full ${statusClass}">${escapeHtml(lead.status)}</span></td>
                     <td class="p-4 pr-6 text-right">
@@ -1215,8 +1213,7 @@
                         <div class="font-bold text-white text-xs line-clamp-1">${escapeHtml(lead.company)}</div>
                         <div class="text-3xs text-slate-500 mt-0.5 font-mono line-clamp-1">${escapeHtml(lead.website)}</div>
                         <div class="flex justify-between items-center mt-3">
-                            <span class="text-4xs px-2 py-0.5 rounded-full ${competitorClass}">${escapeHtml(lead.competitor)}</span>
-                            <span class="text-4xs text-emerald-400 font-black">${escapeHtml(lead.savings || '')}</span>
+                            <span class="text-xs text-emerald-400 font-extrabold">${escapeHtml(lead.savings || '')}</span>
                         </div>
                     `;
                     cardContainer.appendChild(card);
