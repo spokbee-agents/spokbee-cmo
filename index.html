@@ -867,6 +867,13 @@
                 try {
                     leadsData = JSON.parse(savedLeads);
                     console.log("Loaded " + leadsData.length + " leads from local storage");
+                    
+                    // Force refresh if it is only the fallback 1 lead
+                    if (leadsData.length <= 1) {
+                        console.log("Fallback list detected, forcing fresh fetch of full CRM...");
+                        leadsData = [];
+                        localStorage.removeItem('crm_leads');
+                    }
                 } catch (e) {
                     console.error("Error parsing saved leads from localStorage:", e);
                 }
