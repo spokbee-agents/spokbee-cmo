@@ -451,6 +451,30 @@
                         </div>
                     </div>
 
+                    <!-- Table Pagination Footer -->
+                    <div id="crm-pagination-controls" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-900 bg-slate-950/80 text-xs text-slate-400 font-sans">
+                        <div id="crm-pagination-info" class="font-medium text-slate-500">
+                            Showing <span class="text-slate-300 font-bold" id="pagination-start">0</span> to <span class="text-slate-300 font-bold" id="pagination-end">0</span> of <span class="text-slate-300 font-bold" id="pagination-total">0</span> leads
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button id="btn-page-first" onclick="goToPage(1)" class="p-2 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                                <i class="fa-solid fa-angles-left"></i>
+                            </button>
+                            <button id="btn-page-prev" onclick="changePage(-1)" class="p-2 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                                <i class="fa-solid fa-angle-left"></i>
+                            </button>
+                            <div id="crm-pagination-pages" class="flex items-center gap-1">
+                                <!-- Dynamic page numbers -->
+                            </div>
+                            <button id="btn-page-next" onclick="changePage(1)" class="p-2 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                                <i class="fa-solid fa-angle-right"></i>
+                            </button>
+                            <button id="btn-page-last" onclick="goToPage(totalPages)" class="p-2 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                                <i class="fa-solid fa-angles-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Dynamic Board View -->
                     <div id="crm-board-view" class="hidden p-6 bg-slate-950/50 overflow-x-auto custom-scrollbar h-[550px]">
                         <div class="flex gap-4 min-w-[1200px] h-full items-start">
@@ -758,6 +782,9 @@
         let filteredLeads = [];
         let currentCRMView = 'table'; // 'table' or 'board'
         let selectedLeadId = '';
+        let currentPage = 1;
+        const itemsPerPage = 15;
+        let totalPages = 1;
         // THEME LIGHT/DARK TOGGLE FUNCTIONALITY
         function toggleTheme() {
             const body = document.body;
@@ -862,6 +889,16 @@
         async function initCRM() {
             initTheme();
             console.log("Initializing CRM Workspace...");
+            
+            // Version checking for seed data force-update
+            const currentVersion = '4.0';
+            const savedVersion = localStorage.getItem('crm_version');
+            if (savedVersion !== currentVersion) {
+                console.log("New CRM data version detected, forcing cache update...");
+                localStorage.removeItem('crm_leads');
+                localStorage.setItem('crm_version', currentVersion);
+            }
+
             const savedLeads = localStorage.getItem('crm_leads');
             if (savedLeads) {
                 try {
@@ -932,10 +969,14 @@
             if (currentCRMView === 'table') {
                 document.getElementById('crm-table-view').classList.remove('hidden');
                 document.getElementById('crm-board-view').classList.add('hidden');
+                const pagControls = document.getElementById('crm-pagination-controls');
+                if (pagControls) pagControls.classList.remove('hidden');
                 renderCRMTable();
             } else {
                 document.getElementById('crm-table-view').classList.add('hidden');
                 document.getElementById('crm-board-view').classList.remove('hidden');
+                const pagControls = document.getElementById('crm-pagination-controls');
+                if (pagControls) pagControls.classList.add('hidden');
                 renderCRMBoard();
             }
         }
@@ -979,6 +1020,7 @@
 
         // Live filtration trigger
         function handleCRMFilters() {
+            currentPage = 1;
             renderCRM();
         }
 
@@ -989,14 +1031,79 @@
             
             if (filteredLeads.length === 0) {
                 document.getElementById('crm-table-empty').classList.remove('hidden');
+                const pagControls = document.getElementById('crm-pagination-controls');
+                if (pagControls) pagControls.classList.add('hidden');
                 return;
             }
             document.getElementById('crm-table-empty').classList.add('hidden');
+            const pagControls = document.getElementById('crm-pagination-controls');
+            if (pagControls) pagControls.classList.remove('hidden');
             
-            filteredLeads.forEach(lead => {
+            // Calculate total pages
+            totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = Math.min(startIdx + itemsPerPage, filteredLeads.length);
+            const paginatedLeads = filteredLeads.slice(startIdx, endIdx);
+
+            // Update Pagination info
+            const startDisplay = document.getElementById('pagination-start');
+            const endDisplay = document.getElementById('pagination-end');
+            const totalDisplay = document.getElementById('pagination-total');
+            if (startDisplay) startDisplay.innerText = filteredLeads.length === 0 ? 0 : startIdx + 1;
+            if (endDisplay) endDisplay.innerText = endIdx;
+            if (totalDisplay) totalDisplay.innerText = filteredLeads.length;
+
+            // Enable/disable page buttons
+            const btnFirst = document.getElementById('btn-page-first');
+            const btnPrev = document.getElementById('btn-page-prev');
+            const btnNext = document.getElementById('btn-page-next');
+            const btnLast = document.getElementById('btn-page-last');
+            if (btnFirst) btnFirst.disabled = currentPage === 1;
+            if (btnPrev) btnPrev.disabled = currentPage === 1;
+            if (btnNext) btnNext.disabled = currentPage === totalPages;
+            if (btnLast) btnLast.disabled = currentPage === totalPages;
+
+            // Render dynamic page number buttons
+            const pagesContainer = document.getElementById('crm-pagination-pages');
+            if (pagesContainer) {
+                pagesContainer.innerHTML = '';
+                
+                // Generate limited list of page buttons (current page and surrounding 1)
+                const range = 1; 
+                let startPage = Math.max(1, currentPage - range);
+                let endPage = Math.min(totalPages, currentPage + range);
+
+                // Adjust range if at boundaries
+                if (currentPage === 1) {
+                    endPage = Math.min(totalPages, 3);
+                } else if (currentPage === totalPages) {
+                    startPage = Math.max(1, totalPages - 2);
+                }
+
+                for (let p = startPage; p <= endPage; p++) {
+                    const btn = document.createElement('button');
+                    btn.innerText = p;
+                    btn.onclick = () => goToPage(p);
+                    if (p === currentPage) {
+                        btn.className = "px-2.5 py-1 rounded-md bg-yellow-500 text-slate-950 font-bold border border-yellow-500 text-xs";
+                    } else {
+                        btn.className = "px-2.5 py-1 rounded-md border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-300 text-xs transition-all";
+                    }
+                    pagesContainer.appendChild(btn);
+                }
+            }
+            
+            paginatedLeads.forEach(lead => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/40 cursor-pointer border-b border-slate-800/50 transition-all " + (selectedLeadId === lead.id ? 'bg-yellow-500/5 border-l-2 border-yellow-500' : '');
-                tr.onclick = () => loadLeadById(lead.id);
+                tr.onclick = () => {
+                    loadLeadById(lead.id);
+                    const nameEl = document.getElementById('lead-name');
+                    if (nameEl) nameEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                };
                 
                 // Competitor badge styling (glowing transparent tags)
                 let competitorClass = 'bg-slate-900 text-slate-300 border border-slate-800';
@@ -1029,6 +1136,20 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function changePage(dir) {
+            currentPage += dir;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderCRM();
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderCRM();
         }
 
         // Render Kanban Columns & Cards (Dark Theme styling)
@@ -1074,7 +1195,12 @@
                 stageLeads.forEach(lead => {
                     const card = document.createElement('div');
                     card.className = "bg-[#0E1524] border border-slate-800 rounded-lg p-3 shadow-sm hover:shadow-md cursor-pointer transition-all hover:border-yellow-500/40 " + (selectedLeadId === lead.id ? 'border-yellow-500 ring-2 ring-yellow-500/10' : '');
-                    card.onclick = () => loadLeadById(lead.id);
+                    card.setAttribute('data-lead-id', lead.id);
+                    card.onclick = () => {
+                        loadLeadById(lead.id);
+                        const nameEl = document.getElementById('lead-name');
+                        if (nameEl) nameEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    };
 
                     // Competitor badge styling
                     let competitorClass = 'bg-slate-900 text-slate-400 border border-slate-800';
@@ -1126,11 +1252,18 @@
 
             // Highlight selected in current list
             if (currentCRMView === 'table') {
-                const rows = document.querySelectorAll('#crm-table-body tr');
-                rows.forEach(r => r.classList.remove('bg-blue-50/40', 'border-l-2', 'border-brand-500'));
                 renderCRMTable(); // Fast redraw to lock highlighted row
             } else {
-                renderCRMBoard(); // Redraw board selection state
+                // Selectively highlight the active card DOM element instead of full board redraw!
+                const cards = document.querySelectorAll('#crm-board-view [data-lead-id]');
+                cards.forEach(c => {
+                    const cardLeadId = c.getAttribute('data-lead-id');
+                    if (cardLeadId === id) {
+                        c.className = "bg-[#0E1524] border-yellow-500 ring-2 ring-yellow-500/10 rounded-lg p-3 shadow-sm hover:shadow-md cursor-pointer transition-all hover:border-yellow-500/40";
+                    } else {
+                        c.className = "bg-[#0E1524] border-slate-800 rounded-lg p-3 shadow-sm hover:shadow-md cursor-pointer transition-all hover:border-yellow-500/40";
+                    }
+                });
             }
         }
 

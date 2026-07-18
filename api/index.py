@@ -32,6 +32,25 @@ def read_index():
                 pass
     return "<h1>index.html not found</h1>"
 
+@app.get("/leads_db.json")
+def get_leads_db():
+    paths = [
+        "leads_db.json", 
+        "spokbee-cmo/leads_db.json", 
+        "../leads_db.json", 
+        "../spokbee-cmo/leads_db.json", 
+        "/var/task/leads_db.json",
+        "/var/task/spokbee-cmo/leads_db.json"
+    ]
+    for p in paths:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+    raise HTTPException(status_code=404, detail="leads_db.json not found")
+
 # Enable CORS for local development and Vercel hosting
 app.add_middleware(
     CORSMiddleware,

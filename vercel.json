@@ -1,8 +1,7 @@
 {
   "cleanUrls": true,
-  "routes": [
-    { "src": "/api/sync-hubspot", "dest": "/api/sync-hubspot.js" },
-    { "src": "/api/(.*)", "dest": "/api/index.py" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/api/sync-hubspot", "destination": "/api/sync-hubspot.js" },
+    { "source": "/api/(.*)", "destination": "/api/index.py" }
   ]
 }
