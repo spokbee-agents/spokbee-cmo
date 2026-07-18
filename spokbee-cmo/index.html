@@ -30,6 +30,62 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
+        /* Global Dark Mode CSS Overrides */
+        body.dark-mode {
+            background-color: #080C14 !important;
+            color: #cbd5e1 !important;
+        }
+        body.dark-mode .bg-white {
+            background-color: #0B101D !important;
+            color: #e2e8f0 !important;
+            border-color: #1e293b !important;
+        }
+        body.dark-mode .bg-slate-50 {
+            background-color: #080C14 !important;
+        }
+        body.dark-mode #breadcrumb,
+        body.dark-mode .text-slate-900, 
+        body.dark-mode .text-slate-800,
+        body.dark-mode .text-slate-700,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode h4 {
+            color: #f8fafc !important;
+        }
+        body.dark-mode .text-slate-600,
+        body.dark-mode .text-slate-500 {
+            color: #94a3b8 !important;
+        }
+        body.dark-mode .border-slate-200,
+        body.dark-mode .border-slate-100 {
+            border-color: #1e293b !important;
+        }
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode textarea {
+            background-color: #020617 !important;
+            color: #f1f5f9 !important;
+            border-color: #1e293b !important;
+        }
+        body.dark-mode .bg-slate-100 {
+            background-color: #0f172a !important;
+            border-color: #1e293b !important;
+        }
+        body.dark-mode .bg-slate-50\/50 {
+            background-color: #0d1527 !important;
+            border-color: #1e293b !important;
+        }
+        body.dark-mode .bg-slate-900 {
+            background-color: #0f172a !important;
+            border-color: #1e293b !important;
+        }
+        body.dark-mode .text-brand-500 {
+            color: #fbbf24 !important; /* convert links from blue to gold highlight */
+        }
+        body.dark-mode .text-slate-400 {
+            color: #94a3b8 !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans h-screen flex overflow-hidden relative">
@@ -135,7 +191,12 @@
                 </div>
             </div>
             
-            <div class="flex items-center space-x-4 flex-shrink-0">
+            <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-100 dark-mode-toggle-btn hover:bg-slate-200 text-slate-600 transition flex items-center gap-1.5 text-xs font-bold font-sans select-none">
+                    <span id="theme-toggle-icon"><i class="fa-solid fa-moon"></i></span>
+                    <span id="theme-toggle-text" class="hidden sm:inline">Dark Mode</span>
+                </button>
                 <span class="bg-emerald-50 text-emerald-700 text-3xs md:text-xs font-bold px-2.5 py-1 rounded-full flex items-center space-x-1.5">
                     <span class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span>Orchestration Live</span>
@@ -697,6 +758,52 @@
         let filteredLeads = [];
         let currentCRMView = 'table'; // 'table' or 'board'
         let selectedLeadId = '';
+        // THEME LIGHT/DARK TOGGLE FUNCTIONALITY
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('crm_theme', isDark ? 'dark' : 'light');
+            
+            updateThemeUI(isDark);
+        }
+
+        function updateThemeUI(isDark) {
+            const icon = document.getElementById('theme-toggle-icon');
+            const text = document.getElementById('theme-toggle-text');
+            const btn = document.querySelector('.dark-mode-toggle-btn');
+            
+            if (isDark) {
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-sun text-yellow-400"></i>';
+                if (text) text.innerText = 'Light Mode';
+                if (btn) {
+                    btn.classList.remove('bg-slate-100', 'hover:bg-slate-200', 'text-slate-600');
+                    btn.classList.add('bg-slate-900', 'hover:bg-slate-800', 'text-slate-300', 'border', 'border-slate-800');
+                }
+            } else {
+                if (icon) icon.innerHTML = '<i class="fa-solid fa-moon text-slate-600"></i>';
+                if (text) text.innerText = 'Dark Mode';
+                if (btn) {
+                    btn.classList.add('bg-slate-100', 'hover:bg-slate-200', 'text-slate-600');
+                    btn.classList.remove('bg-slate-900', 'hover:bg-slate-800', 'text-slate-300', 'border', 'border-slate-800');
+                }
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('crm_theme');
+            // Default to dark mode so her eyes are protected immediately!
+            const isDark = !savedTheme || savedTheme === 'dark';
+            
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            updateThemeUI(isDark);
+        }
+
 
         function escapeHtml(text) {
             if (!text) return '';
@@ -753,6 +860,7 @@
 
         // Initialize CRM Data on Load
         async function initCRM() {
+            initTheme();
             console.log("Initializing CRM Workspace...");
             const savedLeads = localStorage.getItem('crm_leads');
             if (savedLeads) {
