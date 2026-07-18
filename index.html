@@ -470,16 +470,8 @@
                         
                         <div class="grid grid-cols-2 gap-4 text-xs font-medium border-b border-slate-800 pb-4">
                             <div>
-                                <p class="text-slate-500 font-bold uppercase tracking-wider">Competitor Used</p>
-                                <p class="text-slate-200 text-sm mt-0.5 font-bold" id="lead-comp">Tacton</p>
-                            </div>
-                            <div>
                                 <p class="text-slate-500 font-bold uppercase tracking-wider">Projected Savings</p>
                                 <p class="text-emerald-400 text-sm mt-0.5 font-extrabold" id="lead-savings">$65,000+</p>
-                            </div>
-                            <div>
-                                <p class="text-slate-500 font-bold uppercase tracking-wider">Target Roles</p>
-                                <p class="text-slate-300 mt-0.5 font-semibold" id="lead-roles">VP of Sales Ops, VP Engineering</p>
                             </div>
                             <div>
                                 <p class="text-slate-500 font-bold uppercase tracking-wider">Company Size</p>
@@ -487,7 +479,7 @@
                             </div>
                             <!-- Lead Status Select in details panel -->
                             <div class="col-span-2">
-                                <p class="text-slate-500 font-bold uppercase tracking-wider mb-1">CRM Stage / Status</p>
+                                <p class="text-slate-500 font-bold uppercase tracking-wider mb-1.5">CRM Stage / Status</p>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <select id="lead-status-select" onchange="updateLeadStatusFromSelect(this.value)" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-yellow-500/30 font-sans font-bold text-slate-300">
                                         <option value="New">New</option>
@@ -498,12 +490,20 @@
                                         <option value="Disqualified">Disqualified</option>
                                     </select>
                                     <button onclick="openEditLeadModal()" class="text-slate-300 hover:text-white text-xs px-2.5 py-1.5 border border-slate-800 rounded-lg bg-slate-950 hover:bg-slate-900 transition flex items-center gap-1 font-bold">
-                                        <i class="fa-solid fa-pen-to-square"></i> Edit Contact
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
                                     <button onclick="deleteLeadConfirm()" class="text-red-400 hover:text-red-300 hover:border-red-900 text-xs px-2.5 py-1.5 border border-red-950 hover:bg-red-950/20 rounded-lg transition flex items-center gap-1 font-bold">
                                         <i class="fa-solid fa-trash-can"></i> Delete
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Associated Contacts Section -->
+                        <div class="border-b border-slate-800 pb-4">
+                            <h4 class="font-bold text-slate-100 text-xs uppercase tracking-wider mb-2.5">👥 Associated Contacts</h4>
+                            <div id="lead-contacts-list" class="space-y-2.5 max-h-[180px] overflow-y-auto custom-scrollbar pr-1">
+                                <!-- Dynamic contacts go here -->
                             </div>
                         </div>
                         
@@ -863,7 +863,7 @@
             console.log("Initializing CRM Workspace...");
             
             // Version checking for seed data force-update
-            const currentVersion = '7.0';
+            const currentVersion = '8.0';
             const savedVersion = localStorage.getItem('crm_version');
             if (savedVersion !== currentVersion) {
                 console.log("New CRM data version detected, forcing cache update...");
@@ -1201,12 +1201,60 @@
             document.getElementById('lead-name').innerText = lead.company;
             document.getElementById('lead-web').innerText = lead.website;
             document.getElementById('lead-web').href = `https://${lead.website}`;
-            document.getElementById('lead-comp').innerText = lead.competitor;
             document.getElementById('lead-savings').innerText = lead.savings || 'N/A';
-            document.getElementById('lead-roles').innerText = lead.roles || 'N/A';
             document.getElementById('lead-size').innerText = lead.size || 'N/A';
             document.getElementById('lead-pain').innerText = lead.pain || 'N/A';
             document.getElementById('lead-play').innerText = lead.play || 'N/A';
+            
+            // Dynamic Associated Contacts Rendering
+            const contactsContainer = document.getElementById('lead-contacts-list');
+            if (contactsContainer) {
+                contactsContainer.innerHTML = '';
+                
+                // Fetch structured contacts, fallback to parsing raw roles string for backward compatibility
+                let contacts = lead.contacts || [];
+                if (contacts.length === 0 && lead.roles) {
+                    try {
+                        const parsed = lead.roles.split(',').map(r => {
+                            const match = r.match(/^(.*?)\((.*?)\)/);
+                            if (match) {
+                                return { name: match[1].trim(), email: match[2].trim(), title: "Decision Maker" };
+                            }
+                            return { name: r.trim(), email: "", title: "Decision Maker" };
+                        });
+                        contacts = parsed;
+                    } catch(e) {
+                        contacts = [];
+                    }
+                }
+                
+                if (contacts.length === 0) {
+                    contactsContainer.innerHTML = `<p class="text-xs text-slate-500 font-mono italic">No associated contacts found.</p>`;
+                } else {
+                    contacts.forEach(contact => {
+                        const contactDiv = document.createElement('div');
+                        contactDiv.className = "flex items-center gap-3 p-2 rounded-lg bg-slate-950/40 border border-slate-900 hover:border-slate-800 transition-all";
+                        
+                        const name = contact.name || "Unknown Decision Maker";
+                        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                        
+                        contactDiv.innerHTML = `
+                            <div class="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-bold flex items-center justify-center shrink-0">
+                                ${initials}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold text-white text-xs truncate">${escapeHtml(name)}</div>
+                                <div class="text-4xs text-slate-400 font-semibold mt-0.5 truncate">${escapeHtml(contact.title || 'Decision Maker')}</div>
+                            </div>
+                            ${contact.email ? `
+                            <a href="mailto:${contact.email}" class="text-yellow-500 hover:text-yellow-400 text-xs p-1.5 hover:bg-slate-900 rounded-md transition-all shrink-0" title="Email ${escapeHtml(name)}">
+                                <i class="fa-solid fa-envelope"></i>
+                            </a>` : ''}
+                        `;
+                        contactsContainer.appendChild(contactDiv);
+                    });
+                }
+            }
             
             const statusSelect = document.getElementById('lead-status-select');
             if (statusSelect) {
