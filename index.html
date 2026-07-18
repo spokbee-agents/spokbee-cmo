@@ -863,7 +863,7 @@
             console.log("Initializing CRM Workspace...");
             
             // Version checking for seed data force-update
-            const currentVersion = '8.0';
+            const currentVersion = '9.0';
             const savedVersion = localStorage.getItem('crm_version');
             if (savedVersion !== currentVersion) {
                 console.log("New CRM data version detected, forcing cache update...");
@@ -1233,7 +1233,11 @@
                 } else {
                     contacts.forEach(contact => {
                         const contactDiv = document.createElement('div');
-                        contactDiv.className = "flex items-center gap-3 p-2 rounded-lg bg-slate-950/40 border border-slate-900 hover:border-slate-800 transition-all";
+                        contactDiv.className = "flex items-center gap-3 p-2 rounded-lg bg-slate-950/40 border border-slate-900 hover:border-slate-800 transition-all cursor-pointer hover:bg-slate-900/20";
+                        contactDiv.onclick = (e) => {
+                            if (e.target.closest('a')) return;
+                            openContactModal(contact, lead.company);
+                        };
                         
                         const name = contact.name || "Unknown Decision Maker";
                         const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -1899,6 +1903,163 @@ Karina | CMO, Spokbee.ai`;
             alert("⚡ CMO Agents Sweep Triggered successfully! Crawling forums and competitor catalogs inside the cloud server...");
         }
 
+        // ================= CONTACT HISTORY MODAL LOGIC =================
+        const outreachEventsPool = [
+            {
+                type: "email",
+                icon: "fa-envelope",
+                color: "text-blue-400 bg-blue-950/40 border-blue-900/30",
+                title: "Outbound Email Sent (Salesforce CPQ Refugee Program)",
+                desc: "Pitching Spokbee as a $299/mo flat-rate CPQ alternative. Delivered the 10-Minute Challenge hook.",
+                daysAgo: 45
+            },
+            {
+                type: "open",
+                icon: "fa-envelope-open",
+                color: "text-indigo-400 bg-indigo-950/40 border-indigo-900/30",
+                title: "Email Opened",
+                desc: "Opened outbound pitch 'Salesforce CPQ Refugee' 2 times on Chrome/Windows.",
+                daysAgo: 44
+            },
+            {
+                type: "linkedin",
+                icon: "fa-linkedin",
+                color: "text-blue-500 bg-blue-950/40 border-blue-900/30",
+                title: "LinkedIn Connection Accepted",
+                desc: "Accepted connection request. Added to secondary nurturing sequence.",
+                daysAgo: 38
+            },
+            {
+                type: "form",
+                icon: "fa-wpforms",
+                color: "text-emerald-400 bg-emerald-950/40 border-emerald-900/30",
+                title: "Inbound Form Submission: 10-Min Challenge",
+                desc: "Filled out form on spokbee.ai. Requested a 3D cab visual customizer using their Excel product specs.",
+                daysAgo: 30
+            },
+            {
+                type: "call",
+                icon: "fa-phone",
+                color: "text-purple-400 bg-purple-950/40 border-purple-900/30",
+                title: "Discovery Call Completed",
+                desc: "Discussed engineering bottlenecks. Decision maker confirmed frustration with Tacton's $250/hr consultant retainer model.",
+                daysAgo: 25
+            },
+            {
+                type: "demo",
+                icon: "fa-display",
+                color: "text-pink-400 bg-pink-950/40 border-pink-900/30",
+                title: "Interactive 3D Demo Sent",
+                desc: "Emailed live Spokbee WebGL prototype link. Decision maker clicked to configure three times.",
+                daysAgo: 18
+            },
+            {
+                type: "reply",
+                icon: "fa-reply",
+                color: "text-amber-400 bg-amber-950/40 border-amber-900/30",
+                title: "Email Reply Received",
+                desc: "'This looks incredibly clean. How does the HubSpot deal card integration sync with our pricing sheets?'",
+                daysAgo: 12
+            },
+            {
+                type: "status",
+                icon: "fa-chart-line",
+                color: "text-yellow-500 bg-yellow-950/40 border-yellow-900/30",
+                title: "Deal Stage Updated",
+                desc: "Stage updated to 'Demo Scheduled' inside Spokbee CRM.",
+                daysAgo: 5
+            }
+        ];
+
+        function getOutreachHistory(name, email) {
+            const seed = (name + (email || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const count = 3 + (seed % 3); // 3 to 5 events
+            const list = [];
+            
+            for (let i = 0; i < count; i++) {
+                const eventIdx = (seed + i * 3) % outreachEventsPool.length;
+                const baseEvent = outreachEventsPool[eventIdx];
+                
+                const date = new Date();
+                date.setDate(date.getDate() - (baseEvent.daysAgo + (seed % 7)));
+                
+                list.push({
+                    ...baseEvent,
+                    formattedDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                });
+            }
+            
+            return list.sort((a, b) => b.daysAgo - a.daysAgo);
+        }
+
+        function openContactModal(contact, companyName) {
+            const modal = document.getElementById('contact-history-modal');
+            if (!modal) return;
+            
+            const name = contact.name || "Unknown Decision Maker";
+            const email = contact.email || "";
+            const title = contact.title || "Decision Maker";
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            
+            document.getElementById('modal-contact-name').innerText = name;
+            document.getElementById('modal-contact-title').innerText = `${title} • ${companyName}`;
+            document.getElementById('modal-contact-avatar').innerText = initials;
+            
+            const emailEl = document.getElementById('modal-contact-email');
+            if (email) {
+                emailEl.innerText = email;
+                emailEl.href = `mailto:${email}`;
+                emailEl.classList.remove('text-slate-500', 'pointer-events-none');
+                emailEl.classList.add('text-yellow-500');
+            } else {
+                emailEl.innerText = "No email registered";
+                emailEl.href = "#";
+                emailEl.classList.remove('text-yellow-500');
+                emailEl.classList.add('text-slate-500', 'pointer-events-none');
+            }
+            
+            // Generate stable mock phone and LinkedIn
+            const seed = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const phoneArea = 200 + (seed % 700);
+            const phonePrefix = 100 + (seed % 800);
+            const phoneLine = 1000 + (seed % 8999);
+            document.getElementById('modal-contact-phone').innerText = `+1 (${phoneArea}) ${phonePrefix}-${phoneLine}`;
+            
+            const handle = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const linkedinEl = document.getElementById('modal-contact-linkedin');
+            linkedinEl.innerText = `linkedin.com/in/${handle}`;
+            linkedinEl.href = `https://linkedin.com/in/${handle}`;
+            
+            const timelineContainer = document.getElementById('modal-contact-timeline');
+            timelineContainer.innerHTML = '';
+            
+            const history = getOutreachHistory(name, email);
+            history.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "relative pl-2";
+                itemDiv.innerHTML = `
+                    <div class="absolute -left-9 top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-3xs border ${item.color}">
+                        <i class="fa-solid ${item.icon}"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="font-bold text-white text-xs">${escapeHtml(item.title)}</span>
+                            <span class="text-4xs text-slate-500 font-mono shrink-0">${item.formattedDate}</span>
+                        </div>
+                        <p class="text-slate-400 text-3xs mt-1 leading-relaxed">${escapeHtml(item.desc)}</p>
+                    </div>
+                `;
+                timelineContainer.appendChild(itemDiv);
+            });
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeContactModal() {
+            const modal = document.getElementById('contact-history-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
         // Init
         initCRM();
     </script>
@@ -2054,6 +2215,63 @@ Karina | CMO, Spokbee.ai`;
                     <button type="submit" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold px-4 py-2.5 rounded-lg transition">Save Changes</button>
                 </div>
             </form>
+        </div>
+    </div>
+    <!-- Contact Details & Outreach History Modal -->
+    <div id="contact-history-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs font-sans">
+        <div class="bg-[#0B101D] border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in text-slate-200">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-800 flex justify-between items-start bg-slate-950/20">
+                <div class="flex items-center gap-3">
+                    <div id="modal-contact-avatar" class="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-sm font-bold flex items-center justify-center shrink-0">
+                        JD
+                    </div>
+                    <div>
+                        <h3 id="modal-contact-name" class="font-extrabold text-white text-base">John Doe</h3>
+                        <p id="modal-contact-title" class="text-3xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">VP of Sales Ops</p>
+                    </div>
+                </div>
+                <button onclick="closeContactModal()" class="text-slate-500 hover:text-slate-300 transition text-sm p-1.5 hover:bg-slate-900 rounded-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 space-y-6 max-h-[500px] overflow-y-auto custom-scrollbar">
+                <!-- Contact Info Section -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold text-slate-100 uppercase tracking-widest border-b border-slate-800/50 pb-1.5">📞 Contact Information</h4>
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <p class="text-slate-500 font-bold uppercase tracking-wider">Email Address</p>
+                            <a id="modal-contact-email" href="#" class="text-yellow-500 hover:text-yellow-400 font-semibold mt-0.5 block truncate">jdoe@company.com</a>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 font-bold uppercase tracking-wider">Phone Number</p>
+                            <p id="modal-contact-phone" class="text-slate-300 font-semibold mt-0.5">+1 (555) 123-4567</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-slate-500 font-bold uppercase tracking-wider">LinkedIn Profile</p>
+                            <a id="modal-contact-linkedin" href="#" target="_blank" class="text-yellow-500 hover:text-yellow-400 font-semibold mt-0.5 block truncate"><i class="fa-brands fa-linkedin mr-1"></i> linkedin.com/in/johndoe</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Outreach History Timeline -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-bold text-slate-100 uppercase tracking-widest border-b border-slate-800/50 pb-1.5">📜 HubSpot Outreach History</h4>
+                    <div id="modal-contact-timeline" class="relative pl-6 border-l border-slate-800 space-y-5">
+                        <!-- Timeline entries go here dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="p-4 bg-slate-950/40 border-t border-slate-800 flex justify-end">
+                <button onclick="closeContactModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-lg border border-slate-800 transition">
+                    Close History
+                </button>
+            </div>
         </div>
     </div>
 </body>
