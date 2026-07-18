@@ -3,6 +3,7 @@ import json
 import httpx
 import re
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -11,6 +12,25 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI(title="Spokbee AI CMO Terminal API")
+
+@app.get("/", response_class=HTMLResponse)
+def read_index():
+    paths = [
+        "index.html", 
+        "spokbee-cmo/index.html", 
+        "../index.html", 
+        "../spokbee-cmo/index.html", 
+        "/var/task/index.html",
+        "/var/task/spokbee-cmo/index.html"
+    ]
+    for p in paths:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    return f.read()
+            except Exception:
+                pass
+    return "<h1>index.html not found</h1>"
 
 # Enable CORS for local development and Vercel hosting
 app.add_middleware(
