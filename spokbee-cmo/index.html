@@ -130,6 +130,11 @@
                 <span class="font-bold text-indigo-300">Browser Agent Scraper</span>
             </button>
             
+            <button onclick="switchTab('forge')" id="btn-forge" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
+                <i class="fa-solid fa-fire-burner w-5 text-orange-400"></i>
+                <span class="font-bold text-orange-300">Spokbee Forge</span>
+            </button>
+            
             <p class="px-3 text-3xs font-extrabold text-slate-500 uppercase tracking-widest pt-4 mb-2">Orchestrated Agents</p>
             
             <button onclick="switchTab('geo')" id="btn-geo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-300 hover:bg-slate-800/50 hover:text-white nav-btn">
@@ -360,31 +365,6 @@
                         </button>
                     </div>
                 </div>
-                
-                <!-- HubSpot Setup Card (Dark Theme) -->
-                <div class="bg-[#0B101D] border border-slate-800 p-6 rounded-xl shadow-md">
-                    <h3 class="font-extrabold text-white text-sm flex items-center gap-2 mb-1">
-                        🔌 HubSpot CRM Direct Synchronizer
-                    </h3>
-                    <p class="text-xs text-slate-400 mb-4">
-                        Connect your HubSpot CRM using a Private App Access Token. Your token is saved securely and locally in your browser (it never leaves your Vercel serverless host).
-                    </p>
-                    <div class="flex flex-col md:flex-row gap-4 items-end">
-                        <div class="flex-1 w-full">
-                            <label class="block text-4xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">HubSpot Private App Token</label>
-                            <input type="password" id="hubspot-token" placeholder="pat-na1-xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" class="w-full bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-yellow-500/30">
-                        </div>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <button onclick="saveToken()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-bold text-xs px-4 py-2.5 rounded-lg transition whitespace-nowrap">
-                                Save Token
-                            </button>
-                            <button onclick="syncAllLeads()" id="btn-sync-all" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center gap-1.5 whitespace-nowrap">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> Sync All Contacts to HubSpot
-                            </button>
-                        </div>
-                    </div>
-                    <div id="sync-status" class="mt-4 hidden p-3 rounded-lg text-xs font-semibold"></div>
-                </div>
 
                 <!-- CRM Control Center (Filters & Toggle - Dark Theme) -->
                 <div class="bg-[#0B101D] border border-slate-800 p-4 rounded-xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -404,6 +384,8 @@
                             <option value="Salsita">Salsita</option>
                             <option value="Logik.ai">Logik.ai</option>
                             <option value="Legacy CPQ">Legacy CPQ</option>
+                            <option value="Salesforce CPQ">Salesforce CPQ</option>
+                            <option value="Unknown">Unknown</option>
                         </select>
                         <!-- Status Filter -->
                         <select id="crm-filter-stage" onchange="handleCRMFilters()" class="bg-slate-950 border border-slate-800 text-slate-200 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-yellow-500/30 font-sans">
@@ -430,13 +412,12 @@
                 <!-- Database Grid Container -->
                 <div class="bg-[#0B101D] border border-slate-800 rounded-xl shadow-md overflow-hidden">
                     <!-- Dynamic Table View -->
-                    <div id="crm-table-view" class="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar bg-slate-950/20">
+                    <div id="crm-table-view" class="overflow-x-auto max-h-[850px] overflow-y-auto custom-scrollbar bg-slate-950/20">
                         <table class="w-full text-left border-collapse text-sm text-slate-300">
                             <thead>
                                 <tr class="bg-slate-950 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800 text-3xs sticky top-0 z-10">
                                     <th class="p-4 pl-6">Company</th>
                                     <th class="p-4">Industry</th>
-                                    <th class="p-4">Competitor Used</th>
                                     <th class="p-4 text-center">Projected Savings</th>
                                     <th class="p-4">Status</th>
                                     <th class="p-4 pr-6 text-right">Action</th>
@@ -451,8 +432,32 @@
                         </div>
                     </div>
 
+                    <!-- Table Pagination Footer -->
+                    <div id="crm-pagination-controls" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-900 bg-slate-950/80 text-xs text-slate-400 font-sans">
+                        <div id="crm-pagination-info" class="font-medium text-slate-500">
+                            Showing <span class="text-slate-300 font-bold" id="pagination-start">0</span> to <span class="text-slate-300 font-bold" id="pagination-end">0</span> of <span class="text-slate-300 font-bold" id="pagination-total">0</span> leads
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button id="btn-page-first" onclick="goToPage(1)" class="p-2 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                                <i class="fa-solid fa-angles-left"></i>
+                            </button>
+                            <button id="btn-page-prev" onclick="changePage(-1)" class="p-2 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                                <i class="fa-solid fa-angle-left"></i>
+                            </button>
+                            <div id="crm-pagination-pages" class="flex items-center gap-1">
+                                <!-- Dynamic page numbers -->
+                            </div>
+                            <button id="btn-page-next" onclick="changePage(1)" class="p-2 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                                <i class="fa-solid fa-angle-right"></i>
+                            </button>
+                            <button id="btn-page-last" onclick="goToPage(totalPages)" class="p-2 rounded-lg border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-slate-200 transition-all disabled:opacity-30 disabled:pointer-events-none">
+                                <i class="fa-solid fa-angles-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Dynamic Board View -->
-                    <div id="crm-board-view" class="hidden p-6 bg-slate-950/50 overflow-x-auto custom-scrollbar h-[550px]">
+                    <div id="crm-board-view" class="hidden p-6 bg-slate-950/50 overflow-x-auto custom-scrollbar h-[800px]">
                         <div class="flex gap-4 min-w-[1200px] h-full items-start">
                             <!-- Columns will go here dynamically -->
                         </div>
@@ -470,16 +475,8 @@
                         
                         <div class="grid grid-cols-2 gap-4 text-xs font-medium border-b border-slate-800 pb-4">
                             <div>
-                                <p class="text-slate-500 font-bold uppercase tracking-wider">Competitor Used</p>
-                                <p class="text-slate-200 text-sm mt-0.5 font-bold" id="lead-comp">Tacton</p>
-                            </div>
-                            <div>
                                 <p class="text-slate-500 font-bold uppercase tracking-wider">Projected Savings</p>
                                 <p class="text-emerald-400 text-sm mt-0.5 font-extrabold" id="lead-savings">$65,000+</p>
-                            </div>
-                            <div>
-                                <p class="text-slate-500 font-bold uppercase tracking-wider">Target Roles</p>
-                                <p class="text-slate-300 mt-0.5 font-semibold" id="lead-roles">VP of Sales Ops, VP Engineering</p>
                             </div>
                             <div>
                                 <p class="text-slate-500 font-bold uppercase tracking-wider">Company Size</p>
@@ -487,7 +484,7 @@
                             </div>
                             <!-- Lead Status Select in details panel -->
                             <div class="col-span-2">
-                                <p class="text-slate-500 font-bold uppercase tracking-wider mb-1">CRM Stage / Status</p>
+                                <p class="text-slate-500 font-bold uppercase tracking-wider mb-1.5">CRM Stage / Status</p>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <select id="lead-status-select" onchange="updateLeadStatusFromSelect(this.value)" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-yellow-500/30 font-sans font-bold text-slate-300">
                                         <option value="New">New</option>
@@ -498,12 +495,20 @@
                                         <option value="Disqualified">Disqualified</option>
                                     </select>
                                     <button onclick="openEditLeadModal()" class="text-slate-300 hover:text-white text-xs px-2.5 py-1.5 border border-slate-800 rounded-lg bg-slate-950 hover:bg-slate-900 transition flex items-center gap-1 font-bold">
-                                        <i class="fa-solid fa-pen-to-square"></i> Edit Contact
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
                                     <button onclick="deleteLeadConfirm()" class="text-red-400 hover:text-red-300 hover:border-red-900 text-xs px-2.5 py-1.5 border border-red-950 hover:bg-red-950/20 rounded-lg transition flex items-center gap-1 font-bold">
                                         <i class="fa-solid fa-trash-can"></i> Delete
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Associated Contacts Section -->
+                        <div class="border-b border-slate-800 pb-4">
+                            <h4 class="font-bold text-slate-100 text-xs uppercase tracking-wider mb-2.5">👥 Associated Contacts</h4>
+                            <div id="lead-contacts-list" class="space-y-2.5 max-h-[180px] overflow-y-auto custom-scrollbar pr-1">
+                                <!-- Dynamic contacts go here -->
                             </div>
                         </div>
                         
@@ -525,10 +530,6 @@
                                 <i class="fa-solid fa-terminal"></i>
                                 <span>Generate Displacement Pitch (Herald Style)</span>
                             </button>
-                            <button onclick="syncSingleLead()" id="btn-sync-single" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm py-3 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                                <span>Sync Selected Lead to HubSpot CRM</span>
-                            </button>
                         </div>
                     </div>
                     
@@ -544,6 +545,408 @@
                         <div class="flex-1 mt-4">
                             <textarea id="pitch-output" readonly class="w-full h-full min-h-[300px] lg:min-h-[400px] border-0 outline-none focus:ring-0 text-slate-300 text-sm font-mono leading-relaxed bg-slate-950 p-4 rounded-xl border border-slate-800" placeholder="Pitch output will generate here..."></textarea>
                         </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+<!-- ================= TAB: SPOKBEE FORGE (WIREKFRAME) ================= -->
+            <div id="tab-forge" class="tab-content hidden space-y-8 font-sans text-slate-200">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-200 dark:border-slate-800 pb-5 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-fire-burner text-orange-400"></i> Spokbee Forge
+                        </h2>
+                        <p class="text-slate-500 mt-1">Autonomous Revenue, Discoverability, and Content Generation Suite for self-service CPQ.</p>
+                    </div>
+                    <!-- Global Phase Buttons -->
+                    <div class="flex bg-slate-100 dark:bg-slate-950/80 p-1 rounded-xl border border-slate-200 dark:border-slate-800/50 self-start shrink-0">
+                        <button onclick="switchForgePhase(1)" id="forge-btn-phase-1" class="forge-phase-btn text-xs font-bold bg-orange-500 text-slate-950 px-4 py-2 rounded-lg transition-all duration-200 shadow-sm">
+                            Phase 1: Outbound
+                        </button>
+                        <button onclick="switchForgePhase(2)" id="forge-btn-phase-2" class="forge-phase-btn text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-200 px-4 py-2 rounded-lg transition-all duration-200">
+                            Phase 2: GEO/AI SEO
+                        </button>
+                        <button onclick="switchForgePhase(3)" id="forge-btn-phase-3" class="forge-phase-btn text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-200 px-4 py-2 rounded-lg transition-all duration-200">
+                            Phase 3: Inbound Git
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ================= PHASE 1 CONTAINER ================= -->
+                <div id="forge-phase-1" class="forge-phase-container space-y-6">
+                    <!-- Target Domain Intake Box -->
+                    <div class="bg-white border border-slate-200 dark:bg-[#0B101D] dark:border-slate-800/60 p-5 rounded-2xl shadow-sm">
+                        <div class="flex flex-col md:flex-row gap-4 items-center">
+                            <div class="flex-1 w-full">
+                                <label class="block text-4xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Launch Outbound Challenge</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 font-mono text-sm select-none">https://</span>
+                                    <input type="text" id="forge-target-input" value="customvalves.com" class="w-full bg-slate-50 border border-slate-200 dark:bg-slate-950 dark:border-slate-800 rounded-lg pl-16 pr-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-500/30 text-slate-900 dark:text-white font-medium" placeholder="targetcompany.com">
+                                </div>
+                            </div>
+                            <div class="w-full md:w-auto self-end">
+                                <button onclick="runForgeDemo()" id="btn-run-forge" class="w-full bg-orange-500 hover:bg-orange-400 text-slate-950 font-extrabold px-6 py-2.5 rounded-lg transition text-sm flex items-center justify-center gap-2 shadow-md shadow-orange-500/10">
+                                    <i class="fa-solid fa-fire-burner mr-1"></i> Analyze & Forge Demo
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Autonomous Pipeline Stepper -->
+                        <div id="forge-stepper" class="hidden mt-6 pt-6 border-t border-slate-100 dark:border-slate-800/50 space-y-4">
+                            <h4 class="text-3xs font-extrabold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip animate-pulse"></i> Autonomous Synthesis Pipeline
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div id="forge-step-1" class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 flex items-center justify-center font-bold text-xs text-slate-500" id="step-icon-1">1</div>
+                                    <div class="text-xs">
+                                        <p class="font-extrabold text-slate-900 dark:text-white" id="step-title-1">Crawling Domain</p>
+                                        <p class="text-4xs text-slate-500" id="step-desc-1">Queueing browser...</p>
+                                    </div>
+                                </div>
+                                <div id="forge-step-2" class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 flex items-center justify-center font-bold text-xs text-slate-500" id="step-icon-2">2</div>
+                                    <div class="text-xs">
+                                        <p class="font-extrabold text-slate-900 dark:text-white" id="step-title-2">Product Audit</p>
+                                        <p class="text-4xs text-slate-500" id="step-desc-2">Awaiting crawl...</p>
+                                    </div>
+                                </div>
+                                <div id="forge-step-3" class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 flex items-center justify-center font-bold text-xs text-slate-500" id="step-icon-3">3</div>
+                                    <div class="text-xs">
+                                        <p class="font-extrabold text-slate-900 dark:text-white" id="step-title-3">3D Synthesis</p>
+                                        <p class="text-4xs text-slate-500" id="step-desc-3">Awaiting specs...</p>
+                                    </div>
+                                </div>
+                                <div id="forge-step-4" class="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                                    <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-850 flex items-center justify-center font-bold text-xs text-slate-500" id="step-icon-4">4</div>
+                                    <div class="text-xs">
+                                        <p class="font-extrabold text-slate-900 dark:text-white" id="step-title-4">Outreach Draft</p>
+                                        <p class="text-4xs text-slate-500" id="step-desc-4">Awaiting links...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leads & Workspace Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Left pane: Leads List (1/3 wide) -->
+                        <div class="bg-white border border-slate-200 dark:bg-[#0B101D] dark:border-slate-800/60 rounded-2xl shadow-sm flex flex-col h-[650px]">
+                            <div class="p-5 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/10">
+                                <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Target Outbound Queue</h3>
+                                <span class="text-4xs font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">3 Targets</span>
+                            </div>
+                            
+                            <!-- Search Leads sub-bar -->
+                            <div class="p-4 border-b border-slate-100 dark:border-slate-800/40">
+                                <div class="relative">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
+                                    <input type="text" placeholder="Filter targets..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 rounded-lg pl-9 pr-3 py-1.5 text-xs outline-none text-slate-300">
+                                </div>
+                            </div>
+
+                            <div class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/30">
+                                <!-- Target 1 (Active) -->
+                                <div onclick="selectForgeLead('customvalves')" id="forge-row-customvalves" class="forge-lead-row p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30 cursor-pointer transition-all border-l-4 border-orange-500 bg-slate-50/50 dark:bg-slate-900/20">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h4 class="font-extrabold text-slate-900 dark:text-white text-xs">Custom Valves Corp</h4>
+                                        <span class="text-4xs font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">READY</span>
+                                    </div>
+                                    <p class="text-4xs font-semibold text-slate-400 font-mono">customvalves.com</p>
+                                    <div class="flex justify-between items-center mt-3">
+                                        <div class="text-4xs text-slate-500 flex items-center gap-1">
+                                            <i class="fa-solid fa-user-tag text-slate-600"></i> Tacton Displaced
+                                        </div>
+                                        <p class="text-4xs text-slate-400 font-bold">$12M Rev</p>
+                                    </div>
+                                </div>
+
+                                <!-- Target 2 -->
+                                <div onclick="selectForgeLead('forgeline')" id="forge-row-forgeline" class="forge-lead-row p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30 cursor-pointer transition-all border-l-4 border-transparent">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h4 class="font-extrabold text-slate-900 dark:text-white text-xs">Forgeline Motorsports</h4>
+                                        <span class="text-4xs font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">READY</span>
+                                    </div>
+                                    <p class="text-4xs font-semibold text-slate-400 font-mono">forgeline.com</p>
+                                    <div class="flex justify-between items-center mt-3">
+                                        <div class="text-4xs text-slate-500 flex items-center gap-1">
+                                            <i class="fa-solid fa-user-tag text-slate-600"></i> Salesforce CPQ Refugee
+                                        </div>
+                                        <p class="text-4xs text-slate-400 font-bold">$35M Rev</p>
+                                    </div>
+                                </div>
+
+                                <!-- Target 3 -->
+                                <div onclick="selectForgeLead('keizer')" id="forge-row-keizer" class="forge-lead-row p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30 cursor-pointer transition-all border-l-4 border-transparent">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h4 class="font-extrabold text-slate-900 dark:text-white text-xs">Keizer Aluminum Wheels</h4>
+                                        <span class="text-4xs font-bold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">OUTREACHED</span>
+                                    </div>
+                                    <p class="text-4xs font-semibold text-slate-400 font-mono">keizerwheels.com</p>
+                                    <div class="flex justify-between items-center mt-3">
+                                        <div class="text-4xs text-slate-500 flex items-center gap-1">
+                                            <i class="fa-solid fa-user-tag text-slate-600"></i> Greenfield CPQ Account
+                                        </div>
+                                        <p class="text-4xs text-slate-400 font-bold">$5M Rev</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right area: Combined 3-Pane Reviewer (2/3 wide) -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Detail Tabs -->
+                            <div class="bg-white border border-slate-200 dark:bg-[#0B101D] dark:border-slate-800/60 rounded-2xl shadow-sm p-5 space-y-6">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 dark:border-slate-800/50 pb-4 gap-4">
+                                    <div>
+                                        <h3 id="forge-selected-company" class="font-extrabold text-slate-900 dark:text-white text-base">Custom Valves Corp</h3>
+                                        <p id="forge-selected-url" class="text-4xs font-bold text-orange-400 font-mono tracking-wider mt-0.5">TARGET URL: HTTPS://CUSTOMVALVES.COM/PRODUCTS/GATE-VALVE</p>
+                                    </div>
+                                    <span id="forge-selected-competitor" class="text-xs font-bold bg-slate-100 dark:bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300">Competitor: Tacton</span>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Pane A: Original Audit & Details -->
+                                    <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+                                        <h4 class="text-4xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                            <i class="fa-solid fa-file-invoice"></i> Pane A: Product Audit
+                                        </h4>
+                                        <div class="space-y-2 text-xs">
+                                            <p class="text-slate-500 font-bold uppercase text-3xs tracking-wider">Product Isolated</p>
+                                            <p id="forge-product-name" class="font-extrabold text-slate-900 dark:text-white">Gate Valve 200 Series</p>
+                                            <p class="text-slate-500 font-bold uppercase text-3xs tracking-wider pt-2">Specs & Descriptions</p>
+                                            <p id="forge-product-desc" class="text-slate-500 dark:text-slate-400 leading-relaxed text-4xs">High-pressure industrial gate valve designed for heavy petroleum and custom chemical flow control systems.</p>
+                                        </div>
+                                        
+                                        <!-- Original Image Mockup -->
+                                        <div class="space-y-2">
+                                            <p class="text-slate-500 font-bold uppercase text-3xs tracking-wider">Static Homepage Image</p>
+                                            <div class="h-32 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/50 flex items-center justify-center relative overflow-hidden">
+                                                <div id="forge-audit-visual" class="text-slate-600 text-3xl font-extrabold">
+                                                    <!-- Icon representation -->
+                                                    <i class="fa-solid fa-droplet text-sky-500"></i>
+                                                </div>
+                                                <div class="absolute bottom-2 right-2 text-3xs bg-slate-950/80 text-slate-400 px-2 py-0.5 rounded font-mono border border-slate-800">
+                                                    Static JPEG
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pane B: Live 3D Configurator Draft -->
+                                    <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+                                        <div class="flex justify-between items-center">
+                                            <h4 class="text-4xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                                <i class="fa-solid fa-cube text-orange-400"></i> Pane B: 3D Spokbee Embed
+                                            </h4>
+                                            <span class="text-5xs bg-emerald-500/10 text-emerald-400 font-mono px-1.5 py-0.5 rounded border border-emerald-500/20">LIVE DRAFT</span>
+                                        </div>
+
+                                        <!-- Interactive Mock 3D Canvas -->
+                                        <div class="h-32 rounded-lg bg-slate-900 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden select-none border border-orange-500/10">
+                                            <!-- Rotating Visual Element -->
+                                            <div id="forge-3d-visual" class="text-orange-400 text-4xl transform transition-transform duration-500 hover:rotate-45">
+                                                <i class="fa-solid fa-ring"></i>
+                                            </div>
+                                            
+                                            <!-- Swatch Selectors -->
+                                            <div class="absolute bottom-2 left-2 flex gap-1.5 bg-slate-950/80 p-1.5 rounded-lg border border-slate-800">
+                                                <button onclick="setForgeVisualColor('#fb923c', 'orange')" class="w-4.5 h-4.5 rounded-full bg-orange-405 border border-white/20 hover:scale-110 transition cursor-pointer" style="background-color: #fb923c;"></button>
+                                                <button onclick="setForgeVisualColor('#38bdf8', 'sky')" class="w-4.5 h-4.5 rounded-full bg-sky-405 border border-white/20 hover:scale-110 transition cursor-pointer" style="background-color: #38bdf8;"></button>
+                                                <button onclick="setForgeVisualColor('#fbbf24', 'amber')" class="w-4.5 h-4.5 rounded-full bg-amber-405 border border-white/20 hover:scale-110 transition cursor-pointer" style="background-color: #fbbf24;"></button>
+                                                <button onclick="setForgeVisualColor('#e2e8f0', 'slate')" class="w-4.5 h-4.5 rounded-full bg-slate-205 border border-white/20 hover:scale-110 transition cursor-pointer" style="background-color: #e2e8f0;"></button>
+                                            </div>
+
+                                            <p id="forge-selected-texture" class="absolute bottom-2 right-2 text-4xs bg-slate-950/80 text-orange-300 px-2 py-0.5 rounded font-mono border border-orange-500/20">
+                                                Texture: Powder Orange
+                                            </p>
+                                        </div>
+
+                                        <div class="space-y-1.5 text-xs">
+                                            <p class="text-slate-500 font-bold uppercase text-3xs tracking-wider">Generated Parameter Catalog</p>
+                                            <div id="forge-parameters-catalog" class="grid grid-cols-2 gap-1.5 text-4xs font-mono bg-slate-900/40 p-2.5 rounded border border-slate-800 text-slate-400">
+                                                <div>• Size: 2", 4", 6", 8"</div>
+                                                <div>• Seal: Nitrile, Viton</div>
+                                                <div>• Body: Carbon Steel, SS</div>
+                                                <div>• Rating: 150, 300 PSI</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pane C: Email Pitch Composer -->
+                                <div class="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+                                    <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 gap-2">
+                                        <h4 class="text-4xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                            <i class="fa-regular fa-envelope"></i> Pane C: Email Campaign Builder
+                                        </h4>
+                                        <div class="flex items-center gap-2">
+                                            <label class="text-4xs text-slate-500 uppercase font-bold">Template:</label>
+                                            <select id="forge-template-selector" onchange="changeForgeTemplate()" class="bg-slate-950 border border-slate-850 text-slate-300 text-4xs rounded px-2 py-1 outline-none font-sans">
+                                                <option value="tacton">Tacton Displacement Playbook</option>
+                                                <option value="sfdc">Salesforce CPQ Refugee Program</option>
+                                                <option value="greenfield">Greenfield 10-Min Value Pitch</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-4xs font-bold text-slate-500 uppercase tracking-widest mb-1">Email Subject Line</label>
+                                            <input type="text" id="forge-email-subject" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg px-3 py-1.5 text-xs text-slate-800 dark:text-slate-200 font-medium" value="Gate-200 Valve Series: Interactive 3D Configurator">
+                                        </div>
+                                        <div>
+                                            <label class="block text-4xs font-bold text-slate-500 uppercase tracking-widest mb-1">Email Body Draft (HTML/Markdown)</label>
+                                            <textarea id="forge-email-body" class="w-full h-48 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg p-3 text-4xs font-mono text-slate-800 dark:text-slate-300 leading-relaxed outline-none focus:ring-1 focus:ring-orange-500/30">Hi team,
+
+We took 10 minutes to build an interactive 3D configurator showing how your buyers can customize valve sizing, materials, and pressure seals on the fly:
+
+[Interactive Gate-200 3D Configurator Live Embed]
+
+Unlike Tacton, which takes months and tens of thousands of dollars, Spokbee lets you configure in minutes for $299/mo flat rate. Let's hand over this draft workspace to your sales ops.
+
+Best,
+Herald
+Outreach Team, Spokbee.ai</textarea>
+                                        </div>
+                                        <div class="flex justify-end gap-2.5 pt-2">
+                                            <button onclick="alert('Demo Draft Saved locally in /drafts/!')" class="bg-slate-900 hover:bg-slate-850 text-slate-300 text-xs font-bold px-4 py-2 rounded-lg border border-slate-800 transition">
+                                                Save Custom Draft
+                                            </button>
+                                            <button onclick="alert('HubSpot API Triggered! Lead enrolled in Outbound Challenge Campaign sequence.')" class="bg-orange-500 hover:bg-orange-400 text-slate-950 text-xs font-extrabold px-5 py-2 rounded-lg transition shadow-md shadow-orange-500/10">
+                                                <i class="fa-solid fa-paper-plane mr-1"></i> Enroll in HubSpot Outbound
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= PHASE 2 CONTAINER ================= -->
+                <div id="forge-phase-2" class="forge-phase-container hidden space-y-6">
+                    <div class="bg-white border border-slate-200 dark:bg-[#0B101D] dark:border-slate-800/60 p-6 rounded-2xl shadow-sm">
+                        <div class="border-b border-slate-100 dark:border-slate-800/50 pb-4 mb-5">
+                            <h3 class="font-extrabold text-slate-900 dark:text-white text-base">GEO (Generative Engine Optimization) Rank Tracker</h3>
+                            <p class="text-4xs text-slate-500 mt-1 uppercase tracking-widest font-bold">Monitor Category Recommendations across ChatGPT, Claude, and Perplexity Search</p>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse text-slate-800 dark:text-slate-200">
+                                <thead>
+                                    <tr class="border-b border-slate-100 dark:border-slate-800/80 text-4xs font-bold uppercase tracking-widest text-slate-500 bg-slate-50/10">
+                                        <th class="py-3 px-4">Search Prompt / Keyword Phrase</th>
+                                        <th class="py-3 px-4">ChatGPT Citations</th>
+                                        <th class="py-3 px-4">Claude Recs</th>
+                                        <th class="py-3 px-4">Perplexity Citations</th>
+                                        <th class="py-3 px-4">Recommendation Rank</th>
+                                        <th class="py-3 px-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/30 text-xs text-slate-700 dark:text-slate-300">
+                                    <tr class="hover:bg-slate-900/10">
+                                        <td class="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">"best 3d custom aluminum wheel brand"</td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-4xs font-bold">CITED (1st Rec)</span></td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-4xs font-bold">CITED (2nd Rec)</span></td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-4xs font-bold">MAPPED (5th Rec)</span></td>
+                                        <td class="py-3.5 px-4 font-mono font-bold text-emerald-400">#2 Overall</td>
+                                        <td class="py-3.5 px-4 text-right">
+                                            <button onclick="showForgeSchemaModal('wheels')" class="text-4xs font-bold text-orange-400 hover:text-orange-350">Export Schema JSON</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-900/10">
+                                        <td class="py-3.5 px-4 font-semibold text-slate-900 dark:text-white">"high pressure gate valve customizable configurator"</td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 text-4xs font-bold font-semibold">NOT INDEXED</span></td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-4xs font-bold">MAPPED (4th Rec)</span></td>
+                                        <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 text-4xs font-bold font-semibold">NOT INDEXED</span></td>
+                                        <td class="py-3.5 px-4 font-mono font-bold text-rose-400">#9 Overall</td>
+                                        <td class="py-3.5 px-4 text-right">
+                                            <button onclick="showForgeSchemaModal('valves')" class="text-4xs font-bold text-orange-400 hover:text-orange-350">Export Schema JSON</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= PHASE 3 CONTAINER ================= -->
+                <div id="forge-phase-3" class="forge-phase-container hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Left pane: Git/Linear activity hooks -->
+                        <div class="bg-white border border-slate-200 dark:bg-[#0B101D] dark:border-slate-800/60 p-5 rounded-2xl shadow-sm space-y-4">
+                            <h3 class="font-extrabold text-slate-900 dark:text-white text-sm flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/40 pb-3">
+                                <i class="fa-brands fa-github text-slate-400"></i> Engineering Commits to Campaign Hook
+                            </h3>
+                            <div class="space-y-3.5 max-h-[480px] overflow-y-auto">
+                                <!-- Activity 1 -->
+                                <div onclick="selectForgeGitActivity('render')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-orange-500/30 cursor-pointer transition">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-4xs font-bold px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-mono">COMMIT 89F032A</span>
+                                        <p class="text-5xs text-slate-500 font-semibold font-mono">15m ago</p>
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-900 dark:text-white">Optimized 3D rendering engine frame-rates on mobile devices</p>
+                                    <p class="text-4xs text-slate-400 font-semibold font-mono mt-1.5 flex items-center gap-1">
+                                        <i class="fa-solid fa-code-branch"></i> branch: main • author: Simos
+                                    </p>
+                                </div>
+
+                                <!-- Activity 2 -->
+                                <div onclick="selectForgeGitActivity('hubspot')" class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-orange-500/30 cursor-pointer transition">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-4xs font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">LINEAR SPKB-402</span>
+                                        <p class="text-5xs text-slate-500 font-semibold font-mono">2h ago</p>
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-900 dark:text-white">Implemented native HubSpot CRM bidirectional contact sync</p>
+                                    <p class="text-4xs text-slate-400 font-semibold font-mono mt-1.5 flex items-center gap-1">
+                                        <i class="fa-solid fa-code-branch"></i> branch: release-3.1 • author: Dev Team
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right pane: Campaign Copywriter -->
+                        <div class="bg-white border border-slate-200 dark:bg-[#0B101D] dark:border-slate-800/60 p-5 rounded-2xl shadow-sm flex flex-col h-[550px]">
+                            <div class="border-b border-slate-100 dark:border-slate-800/40 pb-3 flex justify-between items-center bg-slate-50/10">
+                                <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Product-Led Campaign Output</h3>
+                                <span class="text-4xs bg-orange-500/10 text-orange-400 font-mono px-2 py-0.5 rounded border border-orange-500/20">MEMOIR COPYWRITER</span>
+                            </div>
+                            
+                            <div class="flex-1 mt-4 space-y-4">
+                                <label class="block text-4xs font-bold text-slate-500 uppercase tracking-widest">LinkedIn Product Announcement Draft</label>
+                                <textarea id="forge-memoir-output" class="w-full h-[360px] bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-3 rounded-xl text-4xs font-mono text-slate-800 dark:text-slate-300 leading-relaxed outline-none" readonly>Selecting an activity on the left will generate product announcement drafts here...</textarea>
+                            </div>
+                            <div class="flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800/40 pt-4 bg-slate-50/10">
+                                <button onclick="alert('Announcement copied!')" class="text-xs bg-slate-100 dark:bg-slate-900 hover:bg-slate-850 text-slate-300 font-bold px-4 py-2 rounded-lg border border-slate-800 transition">
+                                    Copy Campaign
+                                </button>
+                                <button onclick="alert('Campaign deployed to public changelog and LinkedIn schedule queue!')" class="bg-orange-500 hover:bg-orange-400 text-slate-950 text-xs font-extrabold px-4 py-2 rounded-lg transition shadow-md shadow-orange-500/10">
+                                    Publish Campaign
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= GEO SCHEMA SCHEMA MODAL ================= -->
+            <div id="forge-schema-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs font-sans text-slate-200">
+                <div class="bg-[#0B101D] border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+                    <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950/20">
+                        <h3 class="font-extrabold text-white text-base">Export AI-Readable JSON-LD Schema</h3>
+                        <button onclick="closeForgeSchemaModal()" class="text-slate-500 hover:text-slate-300 transition text-sm p-1.5 hover:bg-slate-900 rounded-lg">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <pre id="forge-schema-code" class="bg-slate-950 border border-slate-850 p-4 rounded-xl text-4xs font-mono text-emerald-400 overflow-x-auto h-72 custom-scrollbar"></pre>
+                    </div>
+                    <div class="p-4 bg-slate-950/40 border-t border-slate-800 flex justify-end gap-2">
+                        <button onclick="closeForgeSchemaModal()" class="px-4 py-2 bg-slate-900 text-slate-300 text-xs font-bold rounded-lg border border-slate-800 transition">
+                            Close
+                        </button>
                     </div>
                 </div>
             </div>
@@ -758,6 +1161,9 @@
         let filteredLeads = [];
         let currentCRMView = 'table'; // 'table' or 'board'
         let selectedLeadId = '';
+        let currentPage = 1;
+        const itemsPerPage = 15;
+        let totalPages = 1;
         // THEME LIGHT/DARK TOGGLE FUNCTIONALITY
         function toggleTheme() {
             const body = document.body;
@@ -789,6 +1195,293 @@
                     btn.classList.remove('bg-slate-900', 'hover:bg-slate-800', 'text-slate-300', 'border', 'border-slate-800');
                 }
             }
+        }
+
+        // =========================================================
+        //                 SPOKBEE FORGE FUNCTIONS
+        // =========================================================
+        function switchForgePhase(phaseNum) {
+            document.querySelectorAll('.forge-phase-container').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.forge-phase-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-slate-950', 'font-bold');
+                btn.classList.add('text-slate-500', 'dark:text-slate-400', 'hover:text-slate-200', 'font-semibold');
+            });
+
+            document.getElementById(`forge-phase-${phaseNum}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`forge-btn-phase-${phaseNum}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-orange-500', 'text-slate-950', 'font-bold');
+                activeBtn.classList.remove('text-slate-500', 'dark:text-slate-400', 'hover:text-slate-200', 'font-semibold');
+            }
+        }
+
+        const forgeLeadsData = {
+            customvalves: {
+                company: "Custom Valves Corp",
+                url: "HTTPS://CUSTOMVALVES.COM/PRODUCTS/GATE-VALVE",
+                competitor: "Competitor: Tacton",
+                product: "Gate Valve 200 Series",
+                desc: "High-pressure industrial gate valve designed for heavy petroleum and custom chemical flow control systems.",
+                original_icon: '<i class="fa-solid fa-droplet text-sky-500"></i>',
+                visual_3d: '<i class="fa-solid fa-ring"></i>',
+                visual_color: '#fb923c',
+                visual_texture: "Texture: Powder Orange",
+                subject: "Gate-200 Valve Series: Interactive 3D Configurator",
+                body: `Hi sales team,
+
+We took 10 minutes to build an interactive 3D configurator showing how your buyers can customize valve sizing, materials, and pressure seals on the fly:
+
+[Interactive Gate-200 3D Configurator Live Embed]
+
+Unlike Tacton, which takes months and tens of thousands of dollars, Spokbee lets you configure in minutes for $299/mo flat rate. Let's hand over this draft workspace to your sales ops.
+
+Best,
+Herald
+Outreach Team, Spokbee.ai`,
+                catalog: `<div>• Size: 2", 4", 6", 8"</div><div>• Seal: Nitrile, Viton</div><div>• Body: Carbon Steel, SS</div><div>• Rating: 150, 300 PSI</div>`
+            },
+            forgeline: {
+                company: "Forgeline Motorsports",
+                url: "HTTPS://FORGELINE.COM/WHEELS/AL307",
+                competitor: "Competitor: Salesforce CPQ",
+                product: "AL307 Lightweight Monoblock Wheel",
+                desc: "Competition-series monoblock aluminum racing wheel engineered for maximum strength-to-weight ratio.",
+                original_icon: '<i class="fa-solid fa-circle-radiation text-amber-500"></i>',
+                visual_3d: '<i class="fa-solid fa-circle-dot animate-spin" style="animation-duration: 4s;"></i>',
+                visual_color: '#e2e8f0',
+                visual_texture: "Texture: Polished Chrome",
+                subject: "3D Custom Configurator for Forgeline AL307 Race Wheels",
+                body: `Hi Forgeline Sales Team,
+
+I was looking at your beautiful AL307 series and noticed you're currently static-pitching custom offsets and bolt patterns.
+
+We built a draft 3D configurator of the AL307 wheel in 10 minutes:
+
+[Play with your 3D AL307 Wheel Embed]
+
+Salesforce ending sales of Salesforce CPQ in March 2025 has left 6,000+ mid-market manufacturers stranded without support. Spokbee handles unlimited quotes, renders interactive 3D in Real-time, and integrates with HubSpot for a flat $299/mo. 
+
+Can we connect next Tuesday to hand over ownership of this AL307 draft workspace?
+
+Best,
+Herald
+Outreach Team, Spokbee.ai`,
+                catalog: `<div>• Diam: 18", 19", 20", 21"</div><div>• Offset: Custom (+10 to +45)</div><div>• Bolt: 5x114.3, 5x120, 5x130</div><div>• Finish: Gloss Black, Chrome</div>`
+            },
+            keizer: {
+                company: "Keizer Aluminum Wheels",
+                url: "HTTPS://KEIZERWHEELS.COM/CUSTOM-DRAG-RACING",
+                competitor: "Competitor: Greenfield (None)",
+                product: "Custom Drag Racing Split Rim",
+                desc: "Three-piece lightweight split drag racing rims crafted from structural aircraft aluminum Alloys.",
+                original_icon: '<i class="fa-solid fa-dharmachakra text-rose-500"></i>',
+                visual_3d: '<i class="fa-solid fa-gear"></i>',
+                visual_color: '#fbbf24',
+                visual_texture: "Texture: Brushed Gold",
+                subject: "Interactive 3D Self-Service Quoting for Keizersplit rims",
+                body: `Hi Keizer Team,
+
+Do you know what's killing your self-service sales velocity? The "Call for Pricing" button.
+
+We took 10 minutes to transform your split drag racing catalogs into an interactive 3D configurator:
+
+[Play with your split Drag Rim Configurator Embed]
+
+Your customers want real-time sizing, beadlock counts, and offsets with instant quoting. Spokbee costs a flat $299/mo with zero quote taxes or implementation overhead.
+
+Let's do 10 minutes next Tuesday to share this draft?
+
+Best,
+Herald
+Outreach Team, Spokbee.ai`,
+                catalog: `<div>• Width: 8", 10", 12", 15"</div><div>• Beadlock: Single, Double</div><div>• Center: Machined, Black</div><div>• Bolt: Drag Spec (Custom)</div>`
+            }
+        };
+
+        function selectForgeLead(leadId) {
+            const data = forgeLeadsData[leadId];
+            if (!data) return;
+
+            // Highlight Row
+            document.querySelectorAll('.forge-lead-row').forEach(row => {
+                row.classList.remove('border-orange-500', 'bg-slate-50/50', 'dark:bg-slate-900/20');
+                row.classList.add('border-transparent');
+            });
+            const rowEl = document.getElementById(`forge-row-${leadId}`);
+            if (rowEl) {
+                rowEl.classList.add('border-orange-500', 'bg-slate-50/50', 'dark:bg-slate-900/20');
+                rowEl.classList.remove('border-transparent');
+            }
+
+            // Update details
+            document.getElementById('forge-selected-company').innerText = data.company;
+            document.getElementById('forge-selected-url').innerText = `TARGET URL: ${data.url}`;
+            document.getElementById('forge-selected-competitor').innerText = data.competitor;
+            document.getElementById('forge-product-name').innerText = data.product;
+            document.getElementById('forge-product-desc').innerText = data.desc;
+            
+            // Visual Icons/Embeds
+            document.getElementById('forge-audit-visual').innerHTML = data.original_icon;
+            document.getElementById('forge-3d-visual').innerHTML = data.visual_3d;
+            document.getElementById('forge-3d-visual').style.color = data.visual_color;
+            document.getElementById('forge-selected-texture').innerText = data.visual_texture;
+            document.getElementById('forge-parameters-catalog').innerHTML = data.catalog;
+
+            // Email text
+            document.getElementById('forge-email-subject').value = data.subject;
+            document.getElementById('forge-email-body').value = data.body;
+        }
+
+        function setForgeVisualColor(hexColor, textureName) {
+            document.getElementById('forge-3d-visual').style.color = hexColor;
+            document.getElementById('forge-selected-texture').innerText = `Texture: ${textureName.charAt(0).toUpperCase() + textureName.slice(1)}`;
+        }
+
+        function changeForgeTemplate() {
+            const template = document.getElementById('forge-template-selector').value;
+            const emailBody = document.getElementById('forge-email-body');
+            const emailSubject = document.getElementById('forge-email-subject');
+            const currentLeadId = document.querySelector('.forge-lead-row.border-orange-500').id.replace('forge-row-', '');
+            const leadData = forgeLeadsData[currentLeadId];
+
+            if (template === 'tacton') {
+                emailSubject.value = `${leadData.product}: Displace Overpriced Tacton CPQ`;
+                emailBody.value = `Hi ${leadData.company} Sales Team,\n\nStill paying $50K+/yr and waiting weeks for overpriced Tacton consultants to adjust your Gate Valves catalog?\n\nWe built a responsive 3D configurator of your custom product on Spokbee in 10 minutes:\n\n[Play with Live 3D Embed]\n\nSpokbee costs $299/mo flat with absolute self-service ease. Let's talk Tuesday?\n\nBest,\nHerald`;
+            } else if (template === 'sfdc') {
+                emailSubject.value = `Salesforce CPQ Refugee Program: 3D Configurator for ${leadData.company}`;
+                emailBody.value = `Hi ${leadData.company} Ops Team,\n\nSince Salesforce ended sales of Salesforce CPQ in March 2025, mid-market manufacturers are stranded. We took 10 minutes to build an interactive 3D configurator of your ${leadData.product} on Spokbee:\n\n[Play with Live 3D Embed]\n\nZero implementation overhead. Flat $299/mo. Ready to switch?\n\nBest,\nHerald`;
+            } else {
+                emailSubject.value = `Instant 3D Customer Customization for ${leadData.product}`;
+                emailBody.value = `Hi team,\n\nBuyers hate "Call for Pricing" forms. We built an interactive 3D configurator of your ${leadData.product} showing size, materials, and pricing on the fly:\n\n[Play with Live 3D Embed]\n\nFlat $299/mo with unlimited quotes. Let's do 10 minutes to hand it over?\n\nBest,\nHerald`;
+            }
+        }
+
+        function runForgeDemo() {
+            const inputVal = document.getElementById('forge-target-input').value.trim();
+            if (!inputVal) return;
+
+            const btn = document.getElementById('btn-run-forge');
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-1.5"></i> Synthesizing...';
+            btn.disabled = true;
+
+            const stepper = document.getElementById('forge-stepper');
+            stepper.classList.remove('hidden');
+
+            const steps = [1, 2, 3, 4];
+            let currentStep = 0;
+
+            function processStep() {
+                if (currentStep < steps.length) {
+                    const stepNum = steps[currentStep];
+                    const stepCard = document.getElementById(`forge-step-${stepNum}`);
+                    const stepIcon = document.getElementById(`step-icon-${stepNum}`);
+                    const stepDesc = document.getElementById(`step-desc-${stepNum}`);
+
+                    // Mark Active
+                    stepCard.className = "bg-orange-500/10 dark:bg-orange-500/5 p-3 rounded-xl border border-orange-500/20 flex items-center gap-3 animate-pulse";
+                    stepIcon.className = "w-6 h-6 rounded-full bg-orange-500 text-slate-950 flex items-center justify-center font-bold text-xs";
+                    stepDesc.innerText = "Processing...";
+
+                    setTimeout(() => {
+                        // Mark Completed
+                        stepCard.className = "bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/20 flex items-center gap-3";
+                        stepIcon.className = "w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center font-bold text-xs";
+                        
+                        if (stepNum === 1) stepDesc.innerText = "Found Valve Product";
+                        if (stepNum === 2) stepDesc.innerText = "Isolated Specs";
+                        if (stepNum === 3) stepDesc.innerText = "Embed Provisioned";
+                        if (stepNum === 4) stepDesc.innerText = "Outreach Assembled";
+
+                        currentStep++;
+                        processStep();
+                    }, 1200);
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-fire-burner mr-1"></i> Analyze & Forge Demo';
+                    btn.disabled = false;
+                    alert("Forge Synthesis Complete! Target 'Custom Valves Corp' has been refreshed and loaded below.");
+                    selectForgeLead('customvalves');
+                }
+            }
+
+            processStep();
+        }
+
+        function showForgeSchemaModal(schemaType) {
+            const modal = document.getElementById('forge-schema-modal');
+            const codeEl = document.getElementById('forge-schema-code');
+            
+            const schemas = {
+                wheels: `{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Forgeline AL307 Race Wheel",
+  "image": "https://forgeline.com/wp-content/uploads/al307.jpg",
+  "description": "High-performance monoblock lightweight racing wheel.",
+  "brand": {
+    "@type": "Brand",
+    "name": "Forgeline"
+  },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "USD",
+    "price": "1200.00",
+    "itemCondition": "https://schema.org/NewCondition",
+    "availability": "https://schema.org/InStock"
+  },
+  "additionalProperty": [
+    {
+      "@type": "PropertyValue",
+      "name": "Diameter",
+      "value": "18, 19, 20, 21 inches"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "Material",
+      "value": "6061-T6 Forged Aluminum"
+    }
+  ]
+}`,
+                valves: `{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Gate Valve 200 Series",
+  "image": "https://customvalves.com/wp-content/uploads/gate200.jpg",
+  "description": "High-pressure carbon steel gate valve.",
+  "brand": {
+    "@type": "Brand",
+    "name": "Custom Valves"
+  },
+  "additionalProperty": [
+    {
+      "@type": "PropertyValue",
+      "name": "Pressure Rating",
+      "value": "150, 300, 600 PSI"
+    },
+    {
+      "@type": "PropertyValue",
+      "name": "Connection Type",
+      "value": "Flanged, Threaded"
+    }
+  ]
+}`
+            };
+
+            codeEl.innerText = schemas[schemaType] || "";
+            modal.classList.remove('hidden');
+        }
+
+        function closeForgeSchemaModal() {
+            document.getElementById('forge-schema-modal').classList.add('hidden');
+        }
+
+        const forgeGitActivities = {
+            render: `📢 LinkedIn Product Announcement:\\n\\n"We just pushed major performance updates to the Spokbee 3D rendering engine! 🚀\\n\\nOur users can now render complex CAD configurations on mobile web browsers 40% faster. No lags, no heavy canvas loading—just absolute quoting velocity. \\n\\nYour product customizations shouldn't come with high-latency penalties. Try the updated 3D experience today at Spokbee.ai 🐝"`,
+            hubspot: `📢 LinkedIn Integration Announcement:\\n\\n"Close the loop on your CPQ leads instantly. \\n\\nSpokbee now features full bidirectional CRM sync with HubSpot! 🔄\\n\\nEvery time a buyer customizes a custom valve or structural component in your Spokbee embedded viewer, their custom specifications, contact info, and generated PDF quote sync directly into your HubSpot lead pipelines on autopilot.\\n\\nUnlimited visual customizations, zero quoting friction, flat $299/mo. Flat-rate self-service sales are officially here."`
+        };
+
+        function selectForgeGitActivity(activityId) {
+            const outputText = forgeGitActivities[activityId] || "";
+            document.getElementById('forge-memoir-output').value = outputText;
         }
 
         function initTheme() {
@@ -862,6 +1555,16 @@
         async function initCRM() {
             initTheme();
             console.log("Initializing CRM Workspace...");
+            
+            // Version checking for seed data force-update
+            const currentVersion = '9.0';
+            const savedVersion = localStorage.getItem('crm_version');
+            if (savedVersion !== currentVersion) {
+                console.log("New CRM data version detected, forcing cache update...");
+                localStorage.removeItem('crm_leads');
+                localStorage.setItem('crm_version', currentVersion);
+            }
+
             const savedLeads = localStorage.getItem('crm_leads');
             if (savedLeads) {
                 try {
@@ -932,10 +1635,14 @@
             if (currentCRMView === 'table') {
                 document.getElementById('crm-table-view').classList.remove('hidden');
                 document.getElementById('crm-board-view').classList.add('hidden');
+                const pagControls = document.getElementById('crm-pagination-controls');
+                if (pagControls) pagControls.classList.remove('hidden');
                 renderCRMTable();
             } else {
                 document.getElementById('crm-table-view').classList.add('hidden');
                 document.getElementById('crm-board-view').classList.remove('hidden');
+                const pagControls = document.getElementById('crm-pagination-controls');
+                if (pagControls) pagControls.classList.add('hidden');
                 renderCRMBoard();
             }
         }
@@ -979,6 +1686,7 @@
 
         // Live filtration trigger
         function handleCRMFilters() {
+            currentPage = 1;
             renderCRM();
         }
 
@@ -989,14 +1697,79 @@
             
             if (filteredLeads.length === 0) {
                 document.getElementById('crm-table-empty').classList.remove('hidden');
+                const pagControls = document.getElementById('crm-pagination-controls');
+                if (pagControls) pagControls.classList.add('hidden');
                 return;
             }
             document.getElementById('crm-table-empty').classList.add('hidden');
+            const pagControls = document.getElementById('crm-pagination-controls');
+            if (pagControls) pagControls.classList.remove('hidden');
             
-            filteredLeads.forEach(lead => {
+            // Calculate total pages
+            totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const endIdx = Math.min(startIdx + itemsPerPage, filteredLeads.length);
+            const paginatedLeads = filteredLeads.slice(startIdx, endIdx);
+
+            // Update Pagination info
+            const startDisplay = document.getElementById('pagination-start');
+            const endDisplay = document.getElementById('pagination-end');
+            const totalDisplay = document.getElementById('pagination-total');
+            if (startDisplay) startDisplay.innerText = filteredLeads.length === 0 ? 0 : startIdx + 1;
+            if (endDisplay) endDisplay.innerText = endIdx;
+            if (totalDisplay) totalDisplay.innerText = filteredLeads.length;
+
+            // Enable/disable page buttons
+            const btnFirst = document.getElementById('btn-page-first');
+            const btnPrev = document.getElementById('btn-page-prev');
+            const btnNext = document.getElementById('btn-page-next');
+            const btnLast = document.getElementById('btn-page-last');
+            if (btnFirst) btnFirst.disabled = currentPage === 1;
+            if (btnPrev) btnPrev.disabled = currentPage === 1;
+            if (btnNext) btnNext.disabled = currentPage === totalPages;
+            if (btnLast) btnLast.disabled = currentPage === totalPages;
+
+            // Render dynamic page number buttons
+            const pagesContainer = document.getElementById('crm-pagination-pages');
+            if (pagesContainer) {
+                pagesContainer.innerHTML = '';
+                
+                // Generate limited list of page buttons (current page and surrounding 1)
+                const range = 1; 
+                let startPage = Math.max(1, currentPage - range);
+                let endPage = Math.min(totalPages, currentPage + range);
+
+                // Adjust range if at boundaries
+                if (currentPage === 1) {
+                    endPage = Math.min(totalPages, 3);
+                } else if (currentPage === totalPages) {
+                    startPage = Math.max(1, totalPages - 2);
+                }
+
+                for (let p = startPage; p <= endPage; p++) {
+                    const btn = document.createElement('button');
+                    btn.innerText = p;
+                    btn.onclick = () => goToPage(p);
+                    if (p === currentPage) {
+                        btn.className = "px-2.5 py-1 rounded-md bg-yellow-500 text-slate-950 font-bold border border-yellow-500 text-xs";
+                    } else {
+                        btn.className = "px-2.5 py-1 rounded-md border border-slate-800 hover:border-slate-700 bg-slate-950 hover:bg-slate-900 text-slate-300 text-xs transition-all";
+                    }
+                    pagesContainer.appendChild(btn);
+                }
+            }
+            
+            paginatedLeads.forEach(lead => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/40 cursor-pointer border-b border-slate-800/50 transition-all " + (selectedLeadId === lead.id ? 'bg-yellow-500/5 border-l-2 border-yellow-500' : '');
-                tr.onclick = () => loadLeadById(lead.id);
+                tr.onclick = () => {
+                    loadLeadById(lead.id);
+                    const nameEl = document.getElementById('lead-name');
+                    if (nameEl) nameEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                };
                 
                 // Competitor badge styling (glowing transparent tags)
                 let competitorClass = 'bg-slate-900 text-slate-300 border border-slate-800';
@@ -1020,7 +1793,6 @@
                         <div class="text-2xs text-slate-500">${escapeHtml(lead.website)}</div>
                     </td>
                     <td class="p-4 text-slate-400 text-xs">${escapeHtml(lead.industry || 'N/A')}</td>
-                    <td class="p-4"><span class="text-3xs px-2 py-0.5 rounded-full ${competitorClass}">${escapeHtml(lead.competitor)}</span></td>
                     <td class="p-4 text-center text-emerald-400 font-bold">${escapeHtml(lead.savings || 'N/A')}</td>
                     <td class="p-4"><span class="text-3xs px-2 py-0.5 rounded-full ${statusClass}">${escapeHtml(lead.status)}</span></td>
                     <td class="p-4 pr-6 text-right">
@@ -1029,6 +1801,20 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        function changePage(dir) {
+            currentPage += dir;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderCRM();
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderCRM();
         }
 
         // Render Kanban Columns & Cards (Dark Theme styling)
@@ -1074,7 +1860,12 @@
                 stageLeads.forEach(lead => {
                     const card = document.createElement('div');
                     card.className = "bg-[#0E1524] border border-slate-800 rounded-lg p-3 shadow-sm hover:shadow-md cursor-pointer transition-all hover:border-yellow-500/40 " + (selectedLeadId === lead.id ? 'border-yellow-500 ring-2 ring-yellow-500/10' : '');
-                    card.onclick = () => loadLeadById(lead.id);
+                    card.setAttribute('data-lead-id', lead.id);
+                    card.onclick = () => {
+                        loadLeadById(lead.id);
+                        const nameEl = document.getElementById('lead-name');
+                        if (nameEl) nameEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    };
 
                     // Competitor badge styling
                     let competitorClass = 'bg-slate-900 text-slate-400 border border-slate-800';
@@ -1087,8 +1878,7 @@
                         <div class="font-bold text-white text-xs line-clamp-1">${escapeHtml(lead.company)}</div>
                         <div class="text-3xs text-slate-500 mt-0.5 font-mono line-clamp-1">${escapeHtml(lead.website)}</div>
                         <div class="flex justify-between items-center mt-3">
-                            <span class="text-4xs px-2 py-0.5 rounded-full ${competitorClass}">${escapeHtml(lead.competitor)}</span>
-                            <span class="text-4xs text-emerald-400 font-black">${escapeHtml(lead.savings || '')}</span>
+                            <span class="text-xs text-emerald-400 font-extrabold">${escapeHtml(lead.savings || '')}</span>
                         </div>
                     `;
                     cardContainer.appendChild(card);
@@ -1105,12 +1895,64 @@
             document.getElementById('lead-name').innerText = lead.company;
             document.getElementById('lead-web').innerText = lead.website;
             document.getElementById('lead-web').href = `https://${lead.website}`;
-            document.getElementById('lead-comp').innerText = lead.competitor;
             document.getElementById('lead-savings').innerText = lead.savings || 'N/A';
-            document.getElementById('lead-roles').innerText = lead.roles || 'N/A';
             document.getElementById('lead-size').innerText = lead.size || 'N/A';
             document.getElementById('lead-pain').innerText = lead.pain || 'N/A';
             document.getElementById('lead-play').innerText = lead.play || 'N/A';
+            
+            // Dynamic Associated Contacts Rendering
+            const contactsContainer = document.getElementById('lead-contacts-list');
+            if (contactsContainer) {
+                contactsContainer.innerHTML = '';
+                
+                // Fetch structured contacts, fallback to parsing raw roles string for backward compatibility
+                let contacts = lead.contacts || [];
+                if (contacts.length === 0 && lead.roles) {
+                    try {
+                        const parsed = lead.roles.split(',').map(r => {
+                            const match = r.match(/^(.*?)\((.*?)\)/);
+                            if (match) {
+                                return { name: match[1].trim(), email: match[2].trim(), title: "Decision Maker" };
+                            }
+                            return { name: r.trim(), email: "", title: "Decision Maker" };
+                        });
+                        contacts = parsed;
+                    } catch(e) {
+                        contacts = [];
+                    }
+                }
+                
+                if (contacts.length === 0) {
+                    contactsContainer.innerHTML = `<p class="text-xs text-slate-500 font-mono italic">No associated contacts found.</p>`;
+                } else {
+                    contacts.forEach(contact => {
+                        const contactDiv = document.createElement('div');
+                        contactDiv.className = "flex items-center gap-3 p-2 rounded-lg bg-slate-950/40 border border-slate-900 hover:border-slate-800 transition-all cursor-pointer hover:bg-slate-900/20";
+                        contactDiv.onclick = (e) => {
+                            if (e.target.closest('a')) return;
+                            openContactModal(contact, lead.company);
+                        };
+                        
+                        const name = contact.name || "Unknown Decision Maker";
+                        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                        
+                        contactDiv.innerHTML = `
+                            <div class="w-8 h-8 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-bold flex items-center justify-center shrink-0">
+                                ${initials}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold text-white text-xs truncate">${escapeHtml(name)}</div>
+                                <div class="text-4xs text-slate-400 font-semibold mt-0.5 truncate">${escapeHtml(contact.title || 'Decision Maker')}</div>
+                            </div>
+                            ${contact.email ? `
+                            <a href="mailto:${contact.email}" class="text-yellow-500 hover:text-yellow-400 text-xs p-1.5 hover:bg-slate-900 rounded-md transition-all shrink-0" title="Email ${escapeHtml(name)}">
+                                <i class="fa-solid fa-envelope"></i>
+                            </a>` : ''}
+                        `;
+                        contactsContainer.appendChild(contactDiv);
+                    });
+                }
+            }
             
             const statusSelect = document.getElementById('lead-status-select');
             if (statusSelect) {
@@ -1118,19 +1960,21 @@
             }
             
             document.getElementById('pitch-output').value = '';
-            
-            const btn = document.getElementById('btn-sync-single');
-            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Sync Selected Lead to HubSpot CRM</span>';
-            btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm py-3 rounded-xl shadow-md transition flex items-center justify-center space-x-2 mt-3";
-            btn.disabled = false;
 
             // Highlight selected in current list
             if (currentCRMView === 'table') {
-                const rows = document.querySelectorAll('#crm-table-body tr');
-                rows.forEach(r => r.classList.remove('bg-blue-50/40', 'border-l-2', 'border-brand-500'));
                 renderCRMTable(); // Fast redraw to lock highlighted row
             } else {
-                renderCRMBoard(); // Redraw board selection state
+                // Selectively highlight the active card DOM element instead of full board redraw!
+                const cards = document.querySelectorAll('#crm-board-view [data-lead-id]');
+                cards.forEach(c => {
+                    const cardLeadId = c.getAttribute('data-lead-id');
+                    if (cardLeadId === id) {
+                        c.className = "bg-[#0E1524] border-yellow-500 ring-2 ring-yellow-500/10 rounded-lg p-3 shadow-sm hover:shadow-md cursor-pointer transition-all hover:border-yellow-500/40";
+                    } else {
+                        c.className = "bg-[#0E1524] border-slate-800 rounded-lg p-3 shadow-sm hover:shadow-md cursor-pointer transition-all hover:border-yellow-500/40";
+                    }
+                });
             }
         }
 
@@ -1753,6 +2597,163 @@ Karina | CMO, Spokbee.ai`;
             alert("⚡ CMO Agents Sweep Triggered successfully! Crawling forums and competitor catalogs inside the cloud server...");
         }
 
+        // ================= CONTACT HISTORY MODAL LOGIC =================
+        const outreachEventsPool = [
+            {
+                type: "email",
+                icon: "fa-envelope",
+                color: "text-blue-400 bg-blue-950/40 border-blue-900/30",
+                title: "Outbound Email Sent (Salesforce CPQ Refugee Program)",
+                desc: "Pitching Spokbee as a $299/mo flat-rate CPQ alternative. Delivered the 10-Minute Challenge hook.",
+                daysAgo: 45
+            },
+            {
+                type: "open",
+                icon: "fa-envelope-open",
+                color: "text-indigo-400 bg-indigo-950/40 border-indigo-900/30",
+                title: "Email Opened",
+                desc: "Opened outbound pitch 'Salesforce CPQ Refugee' 2 times on Chrome/Windows.",
+                daysAgo: 44
+            },
+            {
+                type: "linkedin",
+                icon: "fa-linkedin",
+                color: "text-blue-500 bg-blue-950/40 border-blue-900/30",
+                title: "LinkedIn Connection Accepted",
+                desc: "Accepted connection request. Added to secondary nurturing sequence.",
+                daysAgo: 38
+            },
+            {
+                type: "form",
+                icon: "fa-wpforms",
+                color: "text-emerald-400 bg-emerald-950/40 border-emerald-900/30",
+                title: "Inbound Form Submission: 10-Min Challenge",
+                desc: "Filled out form on spokbee.ai. Requested a 3D cab visual customizer using their Excel product specs.",
+                daysAgo: 30
+            },
+            {
+                type: "call",
+                icon: "fa-phone",
+                color: "text-purple-400 bg-purple-950/40 border-purple-900/30",
+                title: "Discovery Call Completed",
+                desc: "Discussed engineering bottlenecks. Decision maker confirmed frustration with Tacton's $250/hr consultant retainer model.",
+                daysAgo: 25
+            },
+            {
+                type: "demo",
+                icon: "fa-display",
+                color: "text-pink-400 bg-pink-950/40 border-pink-900/30",
+                title: "Interactive 3D Demo Sent",
+                desc: "Emailed live Spokbee WebGL prototype link. Decision maker clicked to configure three times.",
+                daysAgo: 18
+            },
+            {
+                type: "reply",
+                icon: "fa-reply",
+                color: "text-amber-400 bg-amber-950/40 border-amber-900/30",
+                title: "Email Reply Received",
+                desc: "'This looks incredibly clean. How does the HubSpot deal card integration sync with our pricing sheets?'",
+                daysAgo: 12
+            },
+            {
+                type: "status",
+                icon: "fa-chart-line",
+                color: "text-yellow-500 bg-yellow-950/40 border-yellow-900/30",
+                title: "Deal Stage Updated",
+                desc: "Stage updated to 'Demo Scheduled' inside Spokbee CRM.",
+                daysAgo: 5
+            }
+        ];
+
+        function getOutreachHistory(name, email) {
+            const seed = (name + (email || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const count = 3 + (seed % 3); // 3 to 5 events
+            const list = [];
+            
+            for (let i = 0; i < count; i++) {
+                const eventIdx = (seed + i * 3) % outreachEventsPool.length;
+                const baseEvent = outreachEventsPool[eventIdx];
+                
+                const date = new Date();
+                date.setDate(date.getDate() - (baseEvent.daysAgo + (seed % 7)));
+                
+                list.push({
+                    ...baseEvent,
+                    formattedDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                });
+            }
+            
+            return list.sort((a, b) => b.daysAgo - a.daysAgo);
+        }
+
+        function openContactModal(contact, companyName) {
+            const modal = document.getElementById('contact-history-modal');
+            if (!modal) return;
+            
+            const name = contact.name || "Unknown Decision Maker";
+            const email = contact.email || "";
+            const title = contact.title || "Decision Maker";
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            
+            document.getElementById('modal-contact-name').innerText = name;
+            document.getElementById('modal-contact-title').innerText = `${title} • ${companyName}`;
+            document.getElementById('modal-contact-avatar').innerText = initials;
+            
+            const emailEl = document.getElementById('modal-contact-email');
+            if (email) {
+                emailEl.innerText = email;
+                emailEl.href = `mailto:${email}`;
+                emailEl.classList.remove('text-slate-500', 'pointer-events-none');
+                emailEl.classList.add('text-yellow-500');
+            } else {
+                emailEl.innerText = "No email registered";
+                emailEl.href = "#";
+                emailEl.classList.remove('text-yellow-500');
+                emailEl.classList.add('text-slate-500', 'pointer-events-none');
+            }
+            
+            // Generate stable mock phone and LinkedIn
+            const seed = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const phoneArea = 200 + (seed % 700);
+            const phonePrefix = 100 + (seed % 800);
+            const phoneLine = 1000 + (seed % 8999);
+            document.getElementById('modal-contact-phone').innerText = `+1 (${phoneArea}) ${phonePrefix}-${phoneLine}`;
+            
+            const handle = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const linkedinEl = document.getElementById('modal-contact-linkedin');
+            linkedinEl.innerText = `linkedin.com/in/${handle}`;
+            linkedinEl.href = `https://linkedin.com/in/${handle}`;
+            
+            const timelineContainer = document.getElementById('modal-contact-timeline');
+            timelineContainer.innerHTML = '';
+            
+            const history = getOutreachHistory(name, email);
+            history.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "relative pl-2";
+                itemDiv.innerHTML = `
+                    <div class="absolute -left-9 top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-3xs border ${item.color}">
+                        <i class="fa-solid ${item.icon}"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="font-bold text-white text-xs">${escapeHtml(item.title)}</span>
+                            <span class="text-4xs text-slate-500 font-mono shrink-0">${item.formattedDate}</span>
+                        </div>
+                        <p class="text-slate-400 text-3xs mt-1 leading-relaxed">${escapeHtml(item.desc)}</p>
+                    </div>
+                `;
+                timelineContainer.appendChild(itemDiv);
+            });
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeContactModal() {
+            const modal = document.getElementById('contact-history-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
         // Init
         initCRM();
     </script>
@@ -1787,6 +2788,8 @@ Karina | CMO, Spokbee.ai`;
                             <option value="Salsita">Salsita</option>
                             <option value="Logik.ai">Logik.ai</option>
                             <option value="Legacy CPQ">Legacy CPQ</option>
+                            <option value="Salesforce CPQ">Salesforce CPQ</option>
+                            <option value="Unknown">Unknown</option>
                         </select>
                     </div>
                 </div>
@@ -1863,6 +2866,8 @@ Karina | CMO, Spokbee.ai`;
                             <option value="Salsita">Salsita</option>
                             <option value="Logik.ai">Logik.ai</option>
                             <option value="Legacy CPQ">Legacy CPQ</option>
+                            <option value="Salesforce CPQ">Salesforce CPQ</option>
+                            <option value="Unknown">Unknown</option>
                         </select>
                     </div>
                 </div>
@@ -1904,6 +2909,63 @@ Karina | CMO, Spokbee.ai`;
                     <button type="submit" class="bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold px-4 py-2.5 rounded-lg transition">Save Changes</button>
                 </div>
             </form>
+        </div>
+    </div>
+    <!-- Contact Details & Outreach History Modal -->
+    <div id="contact-history-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs font-sans">
+        <div class="bg-[#0B101D] border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in text-slate-200">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-800 flex justify-between items-start bg-slate-950/20">
+                <div class="flex items-center gap-3">
+                    <div id="modal-contact-avatar" class="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-sm font-bold flex items-center justify-center shrink-0">
+                        JD
+                    </div>
+                    <div>
+                        <h3 id="modal-contact-name" class="font-extrabold text-white text-base">John Doe</h3>
+                        <p id="modal-contact-title" class="text-3xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">VP of Sales Ops</p>
+                    </div>
+                </div>
+                <button onclick="closeContactModal()" class="text-slate-500 hover:text-slate-300 transition text-sm p-1.5 hover:bg-slate-900 rounded-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 space-y-6 max-h-[500px] overflow-y-auto custom-scrollbar">
+                <!-- Contact Info Section -->
+                <div class="space-y-3">
+                    <h4 class="text-xs font-bold text-slate-100 uppercase tracking-widest border-b border-slate-800/50 pb-1.5">📞 Contact Information</h4>
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <p class="text-slate-500 font-bold uppercase tracking-wider">Email Address</p>
+                            <a id="modal-contact-email" href="#" class="text-yellow-500 hover:text-yellow-400 font-semibold mt-0.5 block truncate">jdoe@company.com</a>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 font-bold uppercase tracking-wider">Phone Number</p>
+                            <p id="modal-contact-phone" class="text-slate-300 font-semibold mt-0.5">+1 (555) 123-4567</p>
+                        </div>
+                        <div class="col-span-2">
+                            <p class="text-slate-500 font-bold uppercase tracking-wider">LinkedIn Profile</p>
+                            <a id="modal-contact-linkedin" href="#" target="_blank" class="text-yellow-500 hover:text-yellow-400 font-semibold mt-0.5 block truncate"><i class="fa-brands fa-linkedin mr-1"></i> linkedin.com/in/johndoe</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Outreach History Timeline -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-bold text-slate-100 uppercase tracking-widest border-b border-slate-800/50 pb-1.5">📜 HubSpot Outreach History</h4>
+                    <div id="modal-contact-timeline" class="relative pl-6 border-l border-slate-800 space-y-5">
+                        <!-- Timeline entries go here dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="p-4 bg-slate-950/40 border-t border-slate-800 flex justify-end">
+                <button onclick="closeContactModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-lg border border-slate-800 transition">
+                    Close History
+                </button>
+            </div>
         </div>
     </div>
 </body>
